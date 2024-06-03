@@ -1,0 +1,51 @@
+[tool.bandit]
+exclude_dirs = ["venv"]
+skips = ["B101"]
+
+[tool.black]
+color = true
+#extend-exclude = '''
+#/(
+#  | directory
+#)/
+#'''
+line-length = 119
+#target-version = ["py312"]
+
+[tool.isort]
+color_output = true
+#extend_skip = ["directory"]
+line_length = 119
+multi_line_output = 3
+profile = "black"
+py_version = "auto"
+
+[tool.mypy]
+#exclude = ["directory"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-ra --verbose"
+testpaths = ["test"]
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "*/tests/*",
+  "locustfile.py",
+  "manage.py",
+]
+#source = ["package_name"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "if self.debug:",
+  "if settings.DEBUG",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if 0:",
+  "if __name__ == .__main__.:",
+]
