@@ -1,7 +1,16 @@
 bandit[toml]==1.7.8
 black[jupyter]==24.4.2
+click==8.1.7
 coverage==7.5.3
+einops==0.8.0
 isort[colors]==5.13.2
 mypy==1.10.0
+numpy==1.23.5
+openai-whisper==20231117
+PyAudio==0.2.14
 pylint==3.2.2
 pytest==8.2.1
+scipy==1.13.1
+torch==2.3.0
+transformers==4.41.2
+TTS==0.14.3
