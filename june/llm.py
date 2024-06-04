@@ -6,7 +6,7 @@ import uuid
 
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
-from kinkajou.settings import HF_TOKEN
+from june.settings import HF_TOKEN
 
 
 class TextGenerator:

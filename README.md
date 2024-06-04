@@ -1,6 +1,6 @@
-# kinkajou
+# june
 
-kinkajou is a fun and interactive command-line application that leverages the latest advancements in Speech-to-Text (STT), Large Language Models (LLM), and Text-to-Speech (TTS) technologies. This playful assistant is designed to make your interactions more engaging and efficient.
+june is a fun and interactive command-line application that leverages the latest advancements in Speech-to-Text (STT), Large Language Models (LLM), and Text-to-Speech (TTS) technologies. This playful assistant is designed to make your interactions more engaging and efficient.
 
 ### How It Works:
 
@@ -28,8 +28,8 @@ apt install portaudio19-dev  # requirement for PyAudio
 ### Steps
 1. Clone the project and go into the directory:
     ```shell
-    git clone https://github.com/mezbaul-h/kinkajou.git
-    cd kinkajou
+    git clone https://github.com/mezbaul-h/june.git
+    cd june
     ```
 2. Install project dependencies:
     ```shell
@@ -49,7 +49,7 @@ You are now ready to use the program!
 This is a CLI program. You can execute it by running:
 
 ```shell
-python -m kinkajou
+python -m june
 ```
 
 Initially, you will be given a chance to provide a **system prompt**, which instructs the LLM model to behave in a certain way. An example prompt could be:
@@ -59,5 +59,3 @@ Initially, you will be given a chance to provide a **system prompt**, which inst
 ```
 
 The program will then download (only once; subsequent runs use previously downloaded files) and load the LLM, Text-to-Speech, and Speech-to-Text models, and start listening to your microphone. Say something, and it will reply both on the CLI and through your speaker. You can have a conversation on pretty much any topic you like.
-
-Congrats, you now have one more friend called kinkajou!

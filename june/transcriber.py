@@ -11,8 +11,8 @@ import pyaudio
 import whisper
 from scipy.io import wavfile
 
-from kinkajou.settings import TORCH_DEVICE
-from kinkajou.utils import suppress_stdout_stderr
+from june.settings import TORCH_DEVICE
+from june.utils import suppress_stdout_stderr
 
 
 class Transcriber:

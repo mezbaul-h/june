@@ -8,8 +8,8 @@ import wave
 import pyaudio
 from TTS.api import TTS
 
-from kinkajou.settings import TORCH_DEVICE
-from kinkajou.utils import suppress_stdout_stderr
+from june.settings import TORCH_DEVICE
+from june.utils import suppress_stdout_stderr
 
 
 class TextToSpeech:
