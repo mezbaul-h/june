@@ -1,10 +1,32 @@
+import re
 import uuid
 
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer, pipeline
 
 from ..settings import settings
 from ..utils import DeferredInitProxy
 from .common import ModelBase
+
+
+class TokenStreamer(TextStreamer):
+    system_token_pattern = re.compile(r"<\|[a-z]+\|>", re.IGNORECASE)
+
+    def __init__(self, tokenizer):
+        super().__init__(tokenizer)
+
+        self.stream_started = False
+
+    def on_finalized_text(self, text: str, stream_end: bool = False):
+        matches = self.system_token_pattern.findall(text)
+
+        # Check the number of matches
+        if len(matches) == 1:
+            # If exactly one match is found, replace it with an empty string
+            text = self.system_token_pattern.sub("", text, count=1)
+        elif len(matches) > 1:
+            return  # Avoid printing initial tokens
+
+        super().on_finalized_text(text, stream_end)
 
 
 class LLM(ModelBase):
@@ -24,6 +46,8 @@ class LLM(ModelBase):
         if chat_template:
             tokenizer.chat_template = chat_template
 
+        self.streamer = TokenStreamer(tokenizer)
+
         self.pipeline = pipeline(
             "text-generation",
             device_map="auto",
@@ -42,6 +66,7 @@ class LLM(ModelBase):
         context_id = kwargs.get("context_id")
         system_prompt = kwargs.get("system_prompt")
         generation_args = kwargs.get("generation_args") or {}
+        generation_args.update({"streamer": self.streamer})
 
         if not context_id:
             attach_context_id = True
@@ -93,11 +118,15 @@ all_models = dict(
     nous_capybara_3b_v19=DeferredInitProxy(LLM, model="NousResearch/Nous-Capybara-3B-V1.9"),
     nous_hermes_2_mistral_7b_dpo=DeferredInitProxy(LLM, model="NousResearch/Nous-Hermes-2-Mistral-7B-DPO"),
     openchat_35_1210=DeferredInitProxy(LLM, model="openchat/openchat-3.5-1210"),  # ~7B params
+    openhermes_2_5_mistral_7b=DeferredInitProxy(LLM, model="teknium/OpenHermes-2.5-Mistral-7B"),  # xoxo
     phi_3_mini_128k=DeferredInitProxy(
         LLM,
         model="microsoft/Phi-3-mini-128k-instruct",
         chat_template=zephyr_chat_template,
     ),  # ~4B params
+    qwen2_0_5b=DeferredInitProxy(LLM, model="Qwen/Qwen2-0.5B-Instruct"),  # ~1B params
+    qwen2_1_5b=DeferredInitProxy(LLM, model="Qwen/Qwen2-1.5B-Instruct"),  # ~2B params
+    qwen2_7b=DeferredInitProxy(LLM, model="Qwen/Qwen2-7B-Instruct"),
     stablelm_2_zephyr_1_6b=DeferredInitProxy(LLM, model="stabilityai/stablelm-2-zephyr-1_6b"),  # ~2B params
     stablelm_zephyr_3b=DeferredInitProxy(LLM, model="stabilityai/stablelm-zephyr-3b"),
     starling_lm_7b_alpha=DeferredInitProxy(LLM, model="berkeley-nest/Starling-LM-7B-alpha"),
