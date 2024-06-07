@@ -5,6 +5,8 @@ This module provides various utility methods and classes.
 import os
 import sys
 
+import pulsectl
+
 
 class DeferredInitProxy:
     def __init__(self, cls, *args, **kwargs):
@@ -75,3 +77,29 @@ class suppress_stdout_stderr:
         # Close null files
         self.outnull_file.close()
         self.errnull_file.close()
+
+
+def get_default_microphone_info():
+    # Connect to PulseAudio
+    pulse = pulsectl.Pulse("default-mic-info")
+
+    # Get the default source (microphone)
+    default_source = pulse.get_source_by_name(pulse.server_info().default_source_name)
+
+    # Retrieve and print relevant information about the default source
+    print("Default Microphone Info:")
+    print(f"Name: {default_source.name}")
+    print(f"Description: {default_source.description}")
+
+    # Try to determine the type based on the description
+    description = default_source.description.lower()
+    if "built-in" in description:
+        mic_type = "Built-in Microphone"
+    elif "usb" in description or "external" in description:
+        mic_type = "External Microphone"
+    elif "headset" in description or "headphone" in description:
+        mic_type = "Headset Microphone"
+    else:
+        mic_type = "Unknown Type"
+
+    print(f"Type: {mic_type}")
