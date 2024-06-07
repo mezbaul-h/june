@@ -8,28 +8,29 @@ import wave
 import pyaudio
 from TTS.api import TTS
 
-from june.settings import TORCH_DEVICE
-from june.utils import suppress_stdout_stderr
+from ..settings import settings
+from ..utils import DeferredInitProxy, suppress_stdout_stderr
+from .common import ModelBase
 
 
-class TextToSpeech:
+class TTSWrapper(ModelBase):
     """
     Class for Text-to-Speech functionality.
 
     Attributes
     ----------
-    tts : TTS
+    model : TTS
         TTS instance for generating speech.
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """
         Initializes the TextToSpeech object.
         """
         with suppress_stdout_stderr():
-            self.tts = TTS("tts_models/en/ljspeech/glow-tts", gpu=False if TORCH_DEVICE == "cpu" else True)
+            self.model = TTS(kwargs["model"], gpu=False if settings.TORCH_DEVICE == "cpu" else True)
 
-    def say(self, text):
+    def speak(self, text):
         """
         Generates speech from text and plays it.
 
@@ -41,7 +42,7 @@ class TextToSpeech:
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as audio_file:
             with suppress_stdout_stderr():
                 # Generate speech by cloning a voice using default settings
-                self.tts.tts_to_file(
+                self.model.tts_to_file(
                     text=text,
                     file_path=audio_file.name,
                 )
@@ -89,3 +90,8 @@ class TextToSpeech:
 
         # Close the WAV file
         wf.close()
+
+
+all_models = dict(
+    ljspeech_glow_tts=DeferredInitProxy(TTSWrapper, model="tts_models/en/ljspeech/glow-tts"),
+)

@@ -8,9 +8,13 @@ mypy==1.10.0
 numpy==1.23.5
 openai-whisper==20231117
 PyAudio==0.2.14
+pydantic-core==2.18.4
+pydantic-settings==2.3.1
 pylint==3.2.2
-pytest==8.2.1
+pytest==8.2.2
+PyQt5==5.15.10
+PyQt5-stubs==5.15.6.0
 scipy==1.13.1
-torch==2.3.0
+torch==2.3.1
 transformers==4.41.2
 TTS==0.14.3

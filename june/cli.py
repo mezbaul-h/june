@@ -2,43 +2,77 @@
 This module provides a CLI program for interacting with the TextGenerator, Transcriber, and TextToSpeech classes.
 """
 
+import time
+
 import click
 
-from .llm import TextGenerator
-from .transcriber import Transcriber
-from .tts import TextToSpeech
+# from .gui import main as main3
+from .models import llm, stt, tts
 
 
 @click.command()
-def main():
+@click.option(
+    "-lm",
+    "--llm-model",
+    help="LLM model to use.",
+    required=True,
+    type=click.Choice(list(llm.all_models.keys()), case_sensitive=True),
+)
+@click.option(
+    "-sm",
+    "--stt-model",
+    default=list(stt.all_models.keys())[0],
+    help="STT model to use.",
+    required=True,
+    type=click.Choice(list(stt.all_models.keys()), case_sensitive=True),
+)
+@click.option(
+    "-tm",
+    "--tts-model",
+    default=list(tts.all_models.keys())[0],
+    help="TTS model to use.",
+    required=True,
+    type=click.Choice(list(tts.all_models.keys()), case_sensitive=True),
+)
+def main(llm_model, stt_model, tts_model):
     """
     Main function to run the CLI program.
     """
-    generation_kwargs = {
+    # system_initial_context = input("[system]> ")
+    generation_args = {
         "max_new_tokens": 200,
         "num_beams": 1,
     }
 
-    system_initial_context = input("[system]> ")
-
-    generator = TextGenerator(
-        pipeline_kwargs=generation_kwargs,
-        system_initial_context=system_initial_context,
-    )
+    llm_model = llm.all_models[llm_model]
+    llm_model.noop()
     context_id = "cli-chat"
 
-    tts = TextToSpeech()
-    transcriber = Transcriber(model="base.en")
+    stt_model = stt.all_models[stt_model]
+    stt_model.noop()
 
-    for transcription in transcriber.run_forever():
-        user_input = transcription.strip()
+    tts_model = tts.all_models[tts_model]
+    tts_model.noop()
 
-        if user_input:
-            print(f"[user]> {user_input}")
+    while True:
+        audio_data = stt_model.record_audio()
 
-            if user_input.lower() in ["exit", "halt", "stop", "quit"]:
-                break
+        if audio_data is not None:
+            print("Transcribing...")
+            transcription = stt_model.transcribe(audio_data)
 
-            reply = generator.generate(user_input, context_id)
-            print(f"[assistant]> {reply['content']}")
-            tts.say(reply["content"])
+            user_input = transcription.strip()
+
+            if user_input:
+                print(f"[user]> {user_input}")
+
+                if user_input.lower() in ["exit", "halt", "stop", "quit"]:
+                    break
+
+                reply = llm_model.generate(user_input, context_id=context_id, generation_args=generation_args)
+                print(f"[assistant]> {reply['content']}")
+                tts_model.speak(reply["content"])
+        else:
+            print("No sound detected.")
+
+        time.sleep(1)  # Pause briefly before next listening
