@@ -57,7 +57,14 @@ class LLM(ModelBase):
 
         streamer = TokenStreamer(tokenizer, bos_token=tokenizer.bos_token, eos_token=tokenizer.eos_token)
 
-        self.contexts = {}
+        self.chat_history = []
+
+        system_prompt = kwargs.get("system_prompt")
+
+        if system_prompt:
+            self.chat_history.append({"role": "system", "content": system_prompt})
+
+        self.is_chat_history_disabled = kwargs.get("disable_chat_history")
         self.system_prompt = kwargs.get("system_prompt")
         self.generation_args = kwargs.get("generation_args") or {}
         self.generation_args.update(
@@ -67,44 +74,27 @@ class LLM(ModelBase):
             }
         )
 
-    def generate(self, message: str, **kwargs):
-        attach_context_id = False
-        init_context = False
-        context_id = kwargs.get("context_id")
-
-        if not context_id:
-            attach_context_id = True
-            init_context = True
-            context_id = str(uuid.uuid4())
-        elif context_id not in self.contexts:
-            init_context = True
-
-        if init_context:
-            self.contexts[context_id] = []
-
-            if self.system_prompt:
-                self.contexts[context_id].append({"role": "system", "content": self.system_prompt})
-
-        self.contexts[context_id].append({"role": "user", "content": message})
+    def generate(self, message: str):
+        self.chat_history.append({"role": "user", "content": message})
 
         try:
-            completion = self.pipeline(self.contexts[context_id], **self.generation_args)[0]["generated_text"]
+            completion = self.pipeline(self.chat_history, **self.generation_args)[0]["generated_text"]
         except RuntimeError as e:
             if "cutlassF" in str(e) and settings.TORCH_DEVICE == "cuda":
                 torch.backends.cuda.enable_mem_efficient_sdp(False)
                 torch.backends.cuda.enable_flash_sdp(False)
 
             # Try again
-            completion = self.pipeline(self.contexts[context_id], **self.generation_args)[0]["generated_text"]
+            completion = self.pipeline(self.chat_history, **self.generation_args)[0]["generated_text"]
 
         if isinstance(completion, str):
             completion = {"role": "assistant", "content": completion}
         else:
             completion = completion[-1]
 
-        self.contexts[context_id].append({**completion})
-
-        if attach_context_id:
-            completion.update({"context_id": context_id})
+        if self.is_chat_history_disabled:
+            self.chat_history.pop()
+        else:
+            self.chat_history.append(completion)
 
         return completion

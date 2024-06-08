@@ -33,11 +33,11 @@ def main(**kwargs):
 
     llm_model = LLM(
         chat_template=config["llm"].get("chat_template"),
+        disable_chat_history=config["llm"].get("disable_chat_history"),
         generation_args=config["llm"].get("generation_args"),
         model=config["llm"]["model"],
         system_prompt=config["llm"].get("system_prompt"),
     )
-    context_id = "cli-chat"
     speech_recognition = config.get("stt") and config.get("tts")
 
     if not speech_recognition:
@@ -84,7 +84,7 @@ def main(**kwargs):
 
             print(f"[assistant]> ", end="", flush=True)  # Print it before so to account for streaming.
 
-            reply = llm_model.generate(user_input, context_id=context_id)
+            reply = llm_model.generate(user_input)
             # print(f"[assistant]> {reply['content']}")
 
             if speech_recognition:
