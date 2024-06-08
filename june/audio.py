@@ -31,8 +31,6 @@ class AudioIO:
             stream.stop_stream()
             stream.close()
             p.terminate()
-        else:
-            print("No audio data to play.")
 
     def record_audio(self):
         """
@@ -53,13 +51,13 @@ class AudioIO:
         current_silence = 0
         recording = False
 
-        print("Listening for sound...")
+        print("[listening]")
 
         while True:
             data = np.frombuffer(stream.read(self.CHUNK), dtype=np.int16)
 
             if not recording and not self.is_silent(data):
-                print("Sound detected. Starting recording...")
+                print("[starting recording]")
                 recording = True
 
             if recording:
@@ -70,7 +68,7 @@ class AudioIO:
                     current_silence = 0
 
                 if current_silence > (self.SILENCE_LIMIT * self.RATE / self.CHUNK):
-                    print("Silence detected. Stopping recording...")
+                    print("[stopping recording]")
                     break
 
         stream.stop_stream()

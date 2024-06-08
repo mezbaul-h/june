@@ -2,6 +2,7 @@
 This module provides a CLI program for interacting with the TextGenerator, Transcriber, and TextToSpeech classes.
 """
 
+import json
 import re
 import time
 
@@ -10,80 +11,55 @@ import torch
 from datasets import load_dataset
 
 from .audio import AudioIO
-from .models import llm, stt, tts
+from .models import LLM, STT, TTS
 
 # from .utils import get_default_microphone_info
 
 
 @click.command()
 @click.option(
-    "-lm",
-    "--llm-model",
-    help="LLM model to use.",
-    required=True,
-    type=click.Choice(list(llm.all_models.keys()), case_sensitive=True),
+    "-c",
+    "--config",
+    help="Configuration file.",
+    nargs=1,
+    type=click.File("r", encoding="utf-8"),
 )
-@click.option(
-    "-nsr",
-    "--no-speech-recognition",
-    help="Simple text based prompt",
-    is_flag=True,
-)
-@click.option(
-    "-sm",
-    "--stt-model",
-    default=list(stt.all_models.keys())[0],
-    help="STT model to use.",
-    required=True,
-    type=click.Choice(list(stt.all_models.keys()), case_sensitive=True),
-)
-@click.option(
-    "-tm",
-    "--tts-model",
-    default=list(tts.all_models.keys())[0],
-    help="TTS model to use.",
-    required=True,
-    type=click.Choice(list(tts.all_models.keys()), case_sensitive=True),
-)
-def main(llm_model, no_speech_recognition, stt_model, tts_model):
+def main(**kwargs):
     """
     Main function to run the CLI program.
     """
     # system_initial_context = input("[system]> ")
-    generation_args = {
-        "max_new_tokens": 200,
-        "num_beams": 1,
-        "return_full_text": False,
-    }
+    config = json.loads(kwargs["config"].read())
 
-    llm_model = llm.all_models[llm_model]
-    llm_model.noop()
+    llm_model = LLM(
+        chat_template=config["llm"].get("chat_template"),
+        generation_args=config["llm"].get("generation_args"),
+        model=config["llm"]["model"],
+        system_prompt=config["llm"].get("system_prompt"),
+    )
     context_id = "cli-chat"
+    speech_recognition = config.get("stt") and config.get("tts")
 
-    if no_speech_recognition:
+    if not speech_recognition:
         # get_default_microphone_info()
         audio_io = None
         speaker_embedding = None
+        tts_model = None
     else:
         audio_io = AudioIO()
-
-        stt_model = stt.all_models[stt_model]
-        stt_model.noop()
-
-        tts_model = tts.all_models[tts_model]
-        tts_model.noop()
-
+        stt_model = STT(model=config["stt"]["model"])
+        tts_model = TTS(model=config["tts"]["model"])
         embeddings_dataset = load_dataset("Matthijs/cmu-arctic-xvectors", split="validation", trust_remote_code=True)
         speaker_embedding = torch.tensor(embeddings_dataset[7306]["xvector"]).unsqueeze(0)
 
     def get_user_input():
-        if no_speech_recognition:
+        if not speech_recognition:
             return input("[user]> ")
 
         audio_data = audio_io.record_audio()
 
         if audio_data is not None:
-            print("Transcribing...")
+            print("[transcribing]")
 
             transcription = stt_model.transcribe(
                 audio_data,
@@ -99,7 +75,7 @@ def main(llm_model, no_speech_recognition, stt_model, tts_model):
     while True:
         user_input = get_user_input()
 
-        if not no_speech_recognition:
+        if speech_recognition:
             print(f"[user]> {user_input}")
 
         if user_input:
@@ -108,10 +84,10 @@ def main(llm_model, no_speech_recognition, stt_model, tts_model):
 
             print(f"[assistant]> ", end="", flush=True)  # Print it before so to account for streaming.
 
-            reply = llm_model.generate(user_input, context_id=context_id, generation_args=generation_args)
+            reply = llm_model.generate(user_input, context_id=context_id)
             # print(f"[assistant]> {reply['content']}")
 
-            if not no_speech_recognition:
+            if speech_recognition:
                 synthesis = tts_model.synthesise(
                     reply["content"], generation_args={"forward_params": {"speaker_embeddings": speaker_embedding}}
                 )

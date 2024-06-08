@@ -11,22 +11,6 @@ except ImportError:
     pulsectl = None
 
 
-class DeferredInitProxy:
-    def __init__(self, cls, *args, **kwargs):
-        self._cls = cls
-        self._args = args
-        self._kwargs = kwargs
-        self._instance = None
-
-    def _initialize_instance(self):
-        if self._instance is None:
-            self._instance = self._cls(*self._args, **self._kwargs)
-
-    def __getattr__(self, item):
-        self._initialize_instance()
-        return getattr(self._instance, item)
-
-
 class suppress_stdout_stderr:
     """
     Context manager to suppress stdout and stderr.

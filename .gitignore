@@ -194,3 +194,7 @@ fabric.properties
 
 # Built Visual Studio Code Extensions
 *.vsix
+
+
+# Project config
+config*.json

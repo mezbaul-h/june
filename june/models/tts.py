@@ -5,7 +5,6 @@ This module provides a Text-to-Speech (TTS) class for generating speech from tex
 from transformers import pipeline
 
 from ..settings import settings
-from ..utils import DeferredInitProxy
 from .common import ModelBase
 
 
@@ -26,8 +25,3 @@ class TTS(ModelBase):
         synthesis = self.pipeline(text, **generation_args)
 
         return synthesis
-
-
-all_models = dict(
-    microsoft_speecht5_tts=DeferredInitProxy(TTS, model="microsoft/speecht5_tts"),
-)

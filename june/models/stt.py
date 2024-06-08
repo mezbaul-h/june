@@ -5,7 +5,6 @@ This module provides a Text-to-Speech (TTS) class for generating speech from tex
 from transformers import pipeline
 
 from ..settings import settings
-from ..utils import DeferredInitProxy
 from .common import ModelBase
 
 
@@ -29,8 +28,3 @@ class STT(ModelBase):
         transcription = self.pipeline(audio, **generation_args)
 
         return transcription["text"].strip()
-
-
-all_models = dict(
-    openai_whisper_small_en=DeferredInitProxy(STT, model="openai/whisper-small.en"),
-)
