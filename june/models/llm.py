@@ -10,7 +10,7 @@ from .common import ModelBase
 
 
 class TokenStreamer(TextStreamer):
-    system_token_pattern = re.compile(r"<\|[a-z\-_]+\|>", re.IGNORECASE)
+    system_token_pattern = re.compile(r"<\|?[a-z\-_]+\|?>", re.IGNORECASE)
 
     def __init__(self, tokenizer):
         super().__init__(tokenizer)
@@ -18,14 +18,15 @@ class TokenStreamer(TextStreamer):
         self.stream_started = False
 
     def on_finalized_text(self, text: str, stream_end: bool = False):
+        if not self.stream_started:
+            self.stream_started = True
+            return  # Avoid printing initial tokens
+
         matches = self.system_token_pattern.findall(text)
 
-        # Check the number of matches
-        if len(matches) == 1:
+        if len(matches) == 1 and stream_end:
             # If exactly one match is found, replace it with an empty string
             text = self.system_token_pattern.sub("", text, count=1)
-        elif len(matches) > 1:
-            return  # Avoid printing initial tokens
 
         super().on_finalized_text(text, stream_end)
 
