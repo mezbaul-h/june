@@ -13,6 +13,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    HF_DEVICE_MAP: str = "auto"
     HF_TOKEN: str = ""
     TORCH_DEVICE: str = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 

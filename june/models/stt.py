@@ -16,7 +16,7 @@ class STT(ModelBase):
         self.pipeline = pipeline(
             "automatic-speech-recognition",
             chunk_length_s=30,
-            device_map="auto",
+            device_map=settings.HF_DEVICE_MAP,
             model=model_id,
             token=settings.HF_TOKEN,
             torch_dtype="auto",

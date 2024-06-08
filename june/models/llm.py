@@ -9,7 +9,7 @@ from .common import ModelBase
 
 
 class TokenStreamer(TextStreamer):
-    system_token_pattern = re.compile(r"<\|[a-z]+\|>", re.IGNORECASE)
+    system_token_pattern = re.compile(r"<\|[a-z\-_]+\|>", re.IGNORECASE)
 
     def __init__(self, tokenizer):
         super().__init__(tokenizer)
@@ -53,7 +53,7 @@ class LLM(ModelBase):
 
         self.pipeline = pipeline(
             "text-generation",
-            device_map="auto",
+            device_map=settings.HF_DEVICE_MAP,
             model=model,
             tokenizer=tokenizer,
             **model_args,
