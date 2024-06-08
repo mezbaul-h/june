@@ -10,23 +10,16 @@ from .common import ModelBase
 
 
 class TokenStreamer(TextStreamer):
-    system_token_pattern = re.compile(r"<\|?[a-z\-_]+\|?>", re.IGNORECASE)
+    system_token_pattern = re.compile(r"<\|?([a-z\-_]+)\|?>", re.IGNORECASE)
 
-    def __init__(self, tokenizer):
-        super().__init__(tokenizer)
+    def __init__(self, tokenizer, eos_token):
+        super().__init__(tokenizer, skip_prompt=True)
 
-        self.stream_started = False
+        self.eos_token = eos_token
 
     def on_finalized_text(self, text: str, stream_end: bool = False):
-        if not self.stream_started:
-            self.stream_started = True
-            return  # Avoid printing initial tokens
-
-        matches = self.system_token_pattern.findall(text)
-
-        if len(matches) == 1 and stream_end:
-            # If exactly one match is found, replace it with an empty string
-            text = self.system_token_pattern.sub("", text, count=1)
+        if self.eos_token in text:
+            text = text.replace(self.eos_token, "")
 
         super().on_finalized_text(text, stream_end)
 
@@ -52,7 +45,7 @@ class LLM(ModelBase):
         if chat_template:
             tokenizer.chat_template = chat_template
 
-        self.streamer = TokenStreamer(tokenizer)
+        self.streamer = TokenStreamer(tokenizer, tokenizer.eos_token)
 
         self.pipeline = pipeline(
             "text-generation",
