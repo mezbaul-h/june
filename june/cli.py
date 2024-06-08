@@ -11,7 +11,8 @@ from datasets import load_dataset
 
 from .audio import AudioIO
 from .models import llm, stt, tts
-from .utils import get_default_microphone_info
+
+# from .utils import get_default_microphone_info
 
 
 @click.command()

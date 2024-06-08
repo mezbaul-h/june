@@ -2,10 +2,7 @@
 This module provides settings related to the application.
 """
 
-from typing import Any, Callable, Set
-
 import torch
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

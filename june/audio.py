@@ -1,5 +1,9 @@
 import numpy as np
-import pyaudio
+
+try:
+    import pyaudio
+except ImportError:
+    pyaudio = None
 
 from .utils import suppress_stdout_stderr
 

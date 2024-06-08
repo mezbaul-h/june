@@ -33,11 +33,14 @@ class LLM(ModelBase):
     def __init__(self, **kwargs):
         model_id = kwargs["model"]
 
+        model_args = {
+            "token": settings.HF_TOKEN,
+            "torch_dtype": "auto",
+            "trust_remote_code": True,
+        }
         model = AutoModelForCausalLM.from_pretrained(
             model_id,
-            token=settings.HF_TOKEN,
-            torch_dtype="auto",
-            trust_remote_code=True,
+            **model_args,
         )
 
         tokenizer = AutoTokenizer.from_pretrained(model_id)
@@ -53,9 +56,7 @@ class LLM(ModelBase):
             device_map="auto",
             model=model,
             tokenizer=tokenizer,
-            token=settings.HF_TOKEN,
-            torch_dtype="auto",
-            trust_remote_code=True,
+            **model_args,
         )
 
         self.contexts = {}
