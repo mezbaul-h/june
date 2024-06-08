@@ -5,7 +5,10 @@ This module provides various utility methods and classes.
 import os
 import sys
 
-import pulsectl
+try:
+    import pulsectl
+except ImportError:
+    pulsectl = None
 
 
 class DeferredInitProxy:
