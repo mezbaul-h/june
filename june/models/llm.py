@@ -34,6 +34,7 @@ class LLM(ModelBase):
         model_id = kwargs["model"]
 
         model_args = {
+            "device_map": settings.HF_DEVICE_MAP,
             "token": settings.HF_TOKEN,
             "torch_dtype": "auto",
             "trust_remote_code": True,
@@ -53,7 +54,6 @@ class LLM(ModelBase):
 
         self.pipeline = pipeline(
             "text-generation",
-            device_map=settings.HF_DEVICE_MAP,
             model=model,
             tokenizer=tokenizer,
             **model_args,
