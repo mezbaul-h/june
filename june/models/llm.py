@@ -1,6 +1,7 @@
 import re
 import uuid
 
+import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer, pipeline
 
 from ..settings import settings
@@ -67,7 +68,12 @@ class LLM(ModelBase):
         context_id = kwargs.get("context_id")
         system_prompt = kwargs.get("system_prompt")
         generation_args = kwargs.get("generation_args") or {}
-        generation_args.update({"streamer": self.streamer})
+        generation_args.update(
+            {
+                "pad_token_id": self.pipeline.tokenizer.eos_token_id,
+                "streamer": self.streamer,
+            }
+        )
 
         if not context_id:
             attach_context_id = True
@@ -84,7 +90,15 @@ class LLM(ModelBase):
 
         self.contexts[context_id].append({"role": "user", "content": message})
 
-        completion = self.pipeline(self.contexts[context_id], **generation_args)[0]["generated_text"]
+        try:
+            completion = self.pipeline(self.contexts[context_id], **generation_args)[0]["generated_text"]
+        except RuntimeError as e:
+            if "cutlassF" in str(e) and settings.TORCH_DEVICE == "cuda":
+                torch.backends.cuda.enable_mem_efficient_sdp(False)
+                torch.backends.cuda.enable_flash_sdp(False)
+
+            # Try again
+            completion = self.pipeline(self.contexts[context_id], **generation_args)[0]["generated_text"]
 
         if isinstance(completion, str):
             completion = {"role": "assistant", "content": completion}
