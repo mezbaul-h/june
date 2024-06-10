@@ -2,19 +2,20 @@
 This module provides settings related to the application.
 """
 
-import os
-
 import torch
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-HF_TOKEN = os.getenv("HF_TOKEN")
-"""Hugging Face token for authentication."""
 
-TORCH_DEVICE = "cpu"
-"""Torch device to be used for computation."""
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
-if torch.cuda.is_available():
-    TORCH_DEVICE = "cuda"
-    """Torch device to be used for computation."""
-elif torch.backends.mps.is_available():
-    TORCH_DEVICE = "mps"
-    """Torch device to be used for computation."""
+    HF_DEVICE_MAP: str = "auto"
+    HF_TOKEN: str = ""
+    TORCH_DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+settings = Settings()

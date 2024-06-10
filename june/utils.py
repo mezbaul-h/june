@@ -5,6 +5,8 @@ This module provides various utility methods and classes.
 import os
 import sys
 
+from colorama import Fore, Style
+
 
 class suppress_stdout_stderr:
     """
@@ -59,3 +61,7 @@ class suppress_stdout_stderr:
         # Close null files
         self.outnull_file.close()
         self.errnull_file.close()
+
+
+def print_system_message(message, color=Fore.BLUE):
+    print(f"{Fore.YELLOW}[system]> {color}{message}{Style.RESET_ALL}")
