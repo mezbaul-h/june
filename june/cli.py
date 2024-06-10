@@ -28,7 +28,7 @@ def main(**kwargs):
     """
     Main function to run the CLI program.
     """
-    init()
+    # init()
 
     config = json.loads(kwargs["config"].read())
     llm_config = config["llm"]
