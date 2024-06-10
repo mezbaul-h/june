@@ -5,10 +5,7 @@ This module provides various utility methods and classes.
 import os
 import sys
 
-try:
-    import pulsectl
-except ImportError:
-    pulsectl = None
+from colorama import Fore, Style
 
 
 class suppress_stdout_stderr:
@@ -66,27 +63,5 @@ class suppress_stdout_stderr:
         self.errnull_file.close()
 
 
-def get_default_microphone_info():
-    # Connect to PulseAudio
-    pulse = pulsectl.Pulse("default-mic-info")
-
-    # Get the default source (microphone)
-    default_source = pulse.get_source_by_name(pulse.server_info().default_source_name)
-
-    # Retrieve and print relevant information about the default source
-    print("Default Microphone Info:")
-    print(f"Name: {default_source.name}")
-    print(f"Description: {default_source.description}")
-
-    # Try to determine the type based on the description
-    description = default_source.description.lower()
-    if "built-in" in description:
-        mic_type = "Built-in Microphone"
-    elif "usb" in description or "external" in description:
-        mic_type = "External Microphone"
-    elif "headset" in description or "headphone" in description:
-        mic_type = "Headset Microphone"
-    else:
-        mic_type = "Unknown Type"
-
-    print(f"Type: {mic_type}")
+def print_system_message(message, color=Fore.BLUE):
+    print(f"{Fore.YELLOW}[system]> {color}{message}{Style.RESET_ALL}")

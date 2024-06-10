@@ -5,7 +5,7 @@ try:
 except ImportError:
     pyaudio = None
 
-from .utils import suppress_stdout_stderr
+from .utils import print_system_message, suppress_stdout_stderr
 
 
 class AudioIO:
@@ -15,22 +15,21 @@ class AudioIO:
     SILENCE_LIMIT = 3  # Seconds of silence before stopping recording
 
     def play_audio(self, audio_data):
-        if audio_data:
-            with suppress_stdout_stderr():
-                p = pyaudio.PyAudio()
+        with suppress_stdout_stderr():
+            p = pyaudio.PyAudio()
 
-            stream = p.open(format=pyaudio.paInt16, channels=1, rate=audio_data["sampling_rate"], output=True)
+        stream = p.open(format=pyaudio.paInt16, channels=1, rate=audio_data["sampling_rate"], output=True)
 
-            # Convert normalized float32 data back to int16 for playback
-            int_data = (audio_data["audio"] * np.iinfo(np.int16).max).astype(np.int16)
+        # Convert normalized float32 data back to int16 for playback
+        int_data = (audio_data["audio"] * np.iinfo(np.int16).max).astype(np.int16)
 
-            # Write the audio data to the stream in chunks
-            for i in range(0, len(int_data), self.CHUNK):
-                stream.write(int_data[i : i + self.CHUNK].tobytes())
+        # Write the audio data to the stream in chunks
+        for i in range(0, len(int_data), self.CHUNK):
+            stream.write(int_data[i : i + self.CHUNK].tobytes())
 
-            stream.stop_stream()
-            stream.close()
-            p.terminate()
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
 
     def record_audio(self):
         """
@@ -51,13 +50,13 @@ class AudioIO:
         current_silence = 0
         recording = False
 
-        print("[listening]")
+        print_system_message("Listening for sound...")
 
         while True:
             data = np.frombuffer(stream.read(self.CHUNK), dtype=np.int16)
 
             if not recording and not self.is_silent(data):
-                print("[starting recording]")
+                print_system_message("Sound detected, starting recording...")
                 recording = True
 
             if recording:
@@ -68,7 +67,7 @@ class AudioIO:
                     current_silence = 0
 
                 if current_silence > (self.SILENCE_LIMIT * self.RATE / self.CHUNK):
-                    print("[stopping recording]")
+                    print_system_message("Silence detected, stopping recording...")
                     break
 
         stream.stop_stream()

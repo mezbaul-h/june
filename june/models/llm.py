@@ -1,10 +1,10 @@
 import re
-import uuid
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer, pipeline
 
 from ..settings import settings
+from ..utils import print_system_message
 from .common import ModelBase
 
 
@@ -43,6 +43,8 @@ class LLM(ModelBase):
         )
 
         tokenizer = AutoTokenizer.from_pretrained(model_id)
+
+        print_system_message(f"LLM context length: {tokenizer.model_max_length}")
 
         chat_template = kwargs.get("chat_template")
         if chat_template:
