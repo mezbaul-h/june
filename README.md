@@ -69,7 +69,8 @@ The application can be customized using a config file. The config file should be
         "num_beams": 1,
         "return_full_text": false
     },
-    "model":"stabilityai/stablelm-2-zephyr-1_6b"
+    "model":"stabilityai/stablelm-2-zephyr-1_6b",
+    "system_prompt": "You are a pirate chatbot who always responds in pirate speak!"
   },
   "stt": {
     "model": "openai/whisper-small.en"
@@ -88,6 +89,7 @@ The application can be customized using a config file. The config file should be
 - `llm.disable_chat_history`: Boolean indicating whether to disable or enable chat history. Enabling chat history will make interactions more dynamic, as the model will have access to previous contexts, but it will consume more processing power. Disabling it will result in less interactive conversations but will use fewer processing resources.
 - `llm.generation_args`: Object containing generation arguments accepted by Hugging Face's text-generation pipeline.
 - `llm.model`: Name of the text-generation model on Hugging Face. Ensure this is a valid model ID that exists on Hugging Face. This field is **required**.
+- `llm.system_prompt`: Give a system prompt to the model. If the underlying model does not support a system prompt and raises an error, it will be suppressed. This field is **optional**.
 
 #### `stt` - Speech-to-Text Model Configuration
 
