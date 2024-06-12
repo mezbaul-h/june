@@ -112,9 +112,6 @@ def main(**kwargs):
                 print_system_message("Exiting...")
                 break
 
-            # Print it before so to account for streaming.
-            print(f"{Fore.GREEN}[assistant]>{Style.RESET_ALL} ", end="", flush=True)
-
             reply = llm_model.generate(user_input)
             # print(f"[assistant]> {reply['content']}")
 

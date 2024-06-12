@@ -7,6 +7,7 @@ coverage==7.5.3
 datasets==2.19.2
 einops==0.8.0
 isort[colors]==5.13.2
+jinja2==3.1.4
 mypy==1.10.0
 numpy==1.23.5
 PyAudio==0.2.14
@@ -15,4 +16,5 @@ pylint==3.2.2
 pytest==8.2.2
 sentencepiece==0.2.0
 torch==2.3.1
+torchaudio==2.3.1
 transformers==4.41.2
