@@ -63,6 +63,7 @@ The application can be customized using a config file. The config file should be
 ```json
 {
   "llm": {
+    "device": "cuda",
     "disable_chat_history": true,
     "generation_args": {
         "max_new_tokens": 200,
@@ -73,19 +74,27 @@ The application can be customized using a config file. The config file should be
     "system_prompt": "You are a pirate chatbot who always responds in pirate speak!"
   },
   "stt": {
+    "device": "cpu",
+    "generation_args": {
+      "batch_size": 8
+    },
     "model": "openai/whisper-small.en"
   },
   "tts": {
+    "device": "cpu",
+    "generation_args": {
+      "speaker_embeddings": 999
+    },
     "model": "microsoft/speecht5_tts"
   }
 }
-
 ```
 
 ### Configuration Keys
 
 #### `llm` - Language Model Configuration
 
+- `llm.device`: Torch device identifier (e.g., `cpu`, `cuda`, `mps`) on which the pipeline will be allocated. Defaults to `cuda` if available; otherwise, defaults to `cpu`.
 - `llm.disable_chat_history`: Boolean indicating whether to disable or enable chat history. Enabling chat history will make interactions more dynamic, as the model will have access to previous contexts, but it will consume more processing power. Disabling it will result in less interactive conversations but will use fewer processing resources.
 - `llm.generation_args`: Object containing generation arguments accepted by Hugging Face's text-generation pipeline.
 - `llm.model`: Name of the text-generation model on Hugging Face. Ensure this is a valid model ID that exists on Hugging Face. This field is **required**.
@@ -93,8 +102,35 @@ The application can be customized using a config file. The config file should be
 
 #### `stt` - Speech-to-Text Model Configuration
 
+- `tts.device`: Torch device identifier (e.g., `cpu`, `cuda`, `mps`) on which the pipeline will be allocated. Defaults to `cuda` if available; otherwise, defaults to `cpu`.
+- `stt.generation_args`: Object containing generation arguments accepted by Hugging Face's speech recognition pipeline.
 - `stt.model`: Name of the speech recognition model on Hugging Face. Ensure this is a valid model ID that exists on Hugging Face. This field is optional; if omitted, the app will operate in text-based mode without speech recognition functionality.
 
 #### `tts` - Text-to-Speech Model Configuration
 
+- `tts.device`: Torch device identifier (e.g., `cpu`, `cuda`, `mps`) on which the pipeline will be allocated. Defaults to `cuda` if available; otherwise, defaults to `cpu`.
+- `tts.generation_args`: Object containing generation arguments accepted by Hugging Face's text-to-speech pipeline.
 - `tts.model`: Name of the text-to-speech model on Hugging Face. Ensure this is a valid model ID that exists on Hugging Face. This field is optional; if omitted, the app will operate in text-based mode without speech recognition functionality.
+
+
+## TESTED MODELS
+
+### LLM
+
+- Berkeley Starling
+- Google Gemma
+- Meta Llama 3
+- Microsoft Phi-3
+- Mistral AI Mistral/Mixtral
+- Nous Hermes
+- OpenChat 3.5
+- Qwen2
+- Stability AI Stable LM
+
+### Speech-to-Text
+
+- OpenAI Whisper
+
+### Text-to-Speech
+
+- Microsoft SpeechT5
