@@ -144,8 +144,8 @@ class LLM(ModelBase):
 
                 # Try again
                 completion = _complete_prompt()
-
-            raise e
+            else:
+                raise e
         except TemplateError as e:
             if "System role not supported" in str(e):
                 print_system_message(str(e), color=Fore.YELLOW)
@@ -155,8 +155,8 @@ class LLM(ModelBase):
 
                 # Try again
                 completion = _complete_prompt()
-
-            raise e
+            else:
+                raise e
 
         if isinstance(completion, str):
             completion = {"role": "assistant", "content": completion}
