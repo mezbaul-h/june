@@ -9,22 +9,20 @@ from .common import ModelBase
 
 
 class STT(ModelBase):
-    def __init__(self, **kwargs):
-        model_id = kwargs["model"]
+    def __init__(self, kwargs):
+        super().__init__(kwargs)
 
         self.pipeline = pipeline(
             "automatic-speech-recognition",
-            chunk_length_s=30,
-            device_map=settings.HF_DEVICE_MAP,
-            model=model_id,
+            chunk_length_s=10,
+            device=self.device,
+            model=self.model_id,
             token=settings.HF_TOKEN,
             torch_dtype="auto",
             trust_remote_code=True,
         )
 
-    def transcribe(self, audio, **kwargs) -> str:
-        generation_args = kwargs.get("generation_args") or {}
-
-        transcription = self.pipeline(audio, **generation_args)
+    def transcribe(self, audio) -> str:
+        transcription = self.pipeline(audio, **self.generation_args)
 
         return transcription["text"].strip()

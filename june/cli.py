@@ -7,9 +7,7 @@ import re
 import time
 
 import click
-import torch
 from colorama import Fore, Style, init
-from datasets import load_dataset
 
 from .audio import AudioIO
 from .models import LLM, STT, TTS
@@ -50,13 +48,7 @@ def main(**kwargs):
     if not llm_config.get("system_prompt"):
         print_system_message("No system prompt provided.")
 
-    llm_model = LLM(
-        chat_template=llm_config.get("chat_template"),
-        disable_chat_history=llm_config.get("disable_chat_history"),
-        generation_args=llm_config.get("generation_args"),
-        model=llm_config["model"],
-        system_prompt=llm_config.get("system_prompt"),
-    )
+    llm_model = LLM(**llm_config)
     speech_recognition = stt_config and tts_config
 
     if speech_recognition:
@@ -70,16 +62,12 @@ def main(**kwargs):
             return 1
 
     if not speech_recognition:
-        # get_default_microphone_info()
         audio_io = None
-        speaker_embedding = None
         tts_model = None
     else:
         audio_io = AudioIO()
-        stt_model = STT(model=stt_config["model"])
-        tts_model = TTS(model=tts_config["model"])
-        embeddings_dataset = load_dataset("Matthijs/cmu-arctic-xvectors", split="validation", trust_remote_code=True)
-        speaker_embedding = torch.tensor(embeddings_dataset[7306]["xvector"]).unsqueeze(0)
+        stt_model = STT(**stt_config)
+        tts_model = TTS(**tts_config)
 
     def get_user_input():
         if not speech_recognition:
@@ -90,12 +78,7 @@ def main(**kwargs):
         if audio_data is not None:
             print_system_message("Transcribing audio...")
 
-            transcription = stt_model.transcribe(
-                audio_data,
-                generation_args={
-                    "batch_size": 8,
-                },
-            )
+            transcription = stt_model.transcribe(audio_data)
             return transcription
 
     # Regular expression pattern to match 'quit', 'stop', or 'exit', ignoring case
@@ -112,13 +95,10 @@ def main(**kwargs):
                 print_system_message("Exiting...")
                 break
 
-            reply = llm_model.generate(user_input)
-            # print(f"[assistant]> {reply['content']}")
+            # reply = llm_model.generate(user_input)
 
             if speech_recognition:
-                synthesis = tts_model.synthesise(
-                    reply["content"], generation_args={"forward_params": {"speaker_embeddings": speaker_embedding}}
-                )
+                synthesis = tts_model.synthesise(user_input)
                 print_system_message("Playing synthesised audio...")
                 audio_io.play_audio(synthesis)
 

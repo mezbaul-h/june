@@ -80,8 +80,8 @@ class TokenStreamer(TextStreamer):
 
 
 class LLM(ModelBase):
-    def __init__(self, **kwargs):
-        model_id = kwargs["model"]
+    def __init__(self, kwargs):
+        super().__init__(kwargs)
 
         model_args = {
             "token": settings.HF_TOKEN,
@@ -89,22 +89,21 @@ class LLM(ModelBase):
             "trust_remote_code": True,
         }
         model = AutoModelForCausalLM.from_pretrained(
-            model_id,
-            attn_implementation="eager",
-            device_map=settings.HF_DEVICE_MAP,
+            self.model_id,
             **model_args,
         )
 
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_id)
 
         print_system_message(f"LLM context length: {tokenizer.model_max_length}")
 
-        chat_template = kwargs.get("chat_template")
+        chat_template = kwargs.pop("chat_template", None)
         if chat_template:
             tokenizer.chat_template = chat_template
 
         self.pipeline = pipeline(
             "text-generation",
+            device=self.device,
             model=model,
             tokenizer=tokenizer,
             **model_args,
@@ -114,14 +113,12 @@ class LLM(ModelBase):
 
         self.chat_history = []
 
-        system_prompt = kwargs.get("system_prompt")
+        self.system_prompt = kwargs.pop("system_prompt", None)
 
-        if system_prompt:
-            self.chat_history.append({"role": "system", "content": system_prompt})
+        if self.system_prompt:
+            self.chat_history.append({"role": "system", "content": self.system_prompt})
 
-        self.is_chat_history_disabled = kwargs.get("disable_chat_history")
-        self.system_prompt = kwargs.get("system_prompt")
-        self.generation_args = kwargs.get("generation_args") or {}
+        self.is_chat_history_disabled = kwargs.pop("disable_chat_history", None)
         self.generation_args.update(
             {
                 "pad_token_id": self.pipeline.tokenizer.eos_token_id,
