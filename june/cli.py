@@ -95,10 +95,10 @@ def main(**kwargs):
                 print_system_message("Exiting...")
                 break
 
-            # reply = llm_model.generate(user_input)
+            reply = llm_model.generate(user_input)
 
             if speech_recognition:
-                synthesis = tts_model.synthesise(user_input)
+                synthesis = tts_model.synthesise(reply["content"])
                 print_system_message("Playing synthesised audio...")
                 audio_io.play_audio(synthesis)
 
