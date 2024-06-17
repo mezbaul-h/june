@@ -1,4 +1,5 @@
 import numpy as np
+import pygame.mixer
 
 try:
     import pyaudio
@@ -14,22 +15,40 @@ class AudioIO:
     THRESHOLD = 1000  # Silence threshold
     SILENCE_LIMIT = 3  # Seconds of silence before stopping recording
 
-    def play_audio(self, audio_data):
+    def close(self):
+        if self.input_stream:
+            self.input_stream.close()
+
+        if self.pa:
+            self.pa.terminate()
+
+    def __init__(self):
+        self.pa = None
+        self.input_stream = None
+
+    def _initialize_input_stream(self):
         with suppress_stdout_stderr():
-            p = pyaudio.PyAudio()
+            self.pa = pyaudio.PyAudio()
 
-        stream = p.open(format=pyaudio.paInt16, channels=1, rate=audio_data["sampling_rate"], output=True)
+        self.input_stream = self.pa.open(
+            channels=1,
+            format=pyaudio.paInt16,
+            frames_per_buffer=self.CHUNK,
+            input=True,
+            rate=self.RATE,
+        )
 
-        # Convert normalized float32 data back to int16 for playback
-        int_data = (audio_data["audio"] * np.iinfo(np.int16).max).astype(np.int16)
+    def play_wav(self, file_path):
+        """Plays a WAV file located at file_path."""
+        # Wait for the sound to finish playing
+        pygame.mixer.music.load(file_path)
+        pygame.mixer.music.play()
 
-        # Write the audio data to the stream in chunks
-        for i in range(0, len(int_data), self.CHUNK):
-            stream.write(int_data[i : i + self.CHUNK].tobytes())
+    def __enter__(self):
+        return self
 
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def record_audio(self):
         """
@@ -41,19 +60,18 @@ class AudioIO:
             Recorded audio data, or None if no sound is detected.
         """
 
-        with suppress_stdout_stderr():
-            p = pyaudio.PyAudio()
-
-        stream = p.open(format=pyaudio.paInt16, channels=1, rate=self.RATE, input=True, frames_per_buffer=self.CHUNK)
+        if not self.input_stream:
+            self._initialize_input_stream()
 
         frames = []
         current_silence = 0
         recording = False
 
+        self.input_stream.start_stream()
         print_system_message("Listening for sound...")
 
         while True:
-            data = np.frombuffer(stream.read(self.CHUNK), dtype=np.int16)
+            data = np.frombuffer(self.input_stream.read(self.CHUNK), dtype=np.int16)
 
             if not recording and not self.is_silent(data):
                 print_system_message("Sound detected, starting recording...")
@@ -70,9 +88,7 @@ class AudioIO:
                     print_system_message("Silence detected, stopping recording...")
                     break
 
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
+        self.input_stream.stop_stream()
 
         if recording:
             raw_data = np.hstack(frames)

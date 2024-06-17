@@ -4,6 +4,7 @@ This module provides various utility methods and classes.
 
 import os
 import sys
+import threading
 
 from colorama import Fore, Style
 
@@ -63,5 +64,19 @@ class suppress_stdout_stderr:
         self.errnull_file.close()
 
 
+class ThreadSafeState:
+    def __init__(self, value):
+        self._value = value
+        self._lock = threading.Lock()
+
+    def set_value(self, value):
+        with self._lock:
+            self._value = value
+
+    def get_value(self):
+        with self._lock:
+            return self._value
+
+
 def print_system_message(message, color=Fore.BLUE):
-    print(f"{Fore.YELLOW}[system]> {color}{message}{Style.RESET_ALL}")
+    print(f"{Style.BRIGHT}{Fore.YELLOW}[system]> {Style.NORMAL}{color}{message}{Style.RESET_ALL}")

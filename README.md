@@ -15,6 +15,7 @@
 ## SETUP
 
 ### Pre-requisites:
+- [Ollama](https://github.com/ollama/ollama)
 - Python `3.10+` (with _pip_)
 - Ubuntu `22.04+`
 
