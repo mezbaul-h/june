@@ -11,7 +11,6 @@ import time
 from threading import Thread
 
 import click
-import ollama
 import pygame
 from colorama import Fore, Style, init
 
@@ -49,7 +48,7 @@ def producer(text_queue: asyncio.Queue, llm_model: LLM, stt_model: STT, tts_mode
         if audio_data is not None:
             print_system_message("Transcribing audio...")
 
-            transcription = stt_model.transcribe(audio_data)
+            transcription = stt_model.forward(audio_data)
             return transcription
 
     # Regular expression pattern to match 'quit', 'stop', or 'exit', ignoring case
@@ -73,7 +72,7 @@ def producer(text_queue: asyncio.Queue, llm_model: LLM, stt_model: STT, tts_mode
 
             print(f"{Style.BRIGHT}{Fore.GREEN}[assistant]> {Style.NORMAL}", end="", flush=True)
 
-            for token in llm_model.generate(user_input):
+            for token in llm_model.forward(user_input):
                 print(token, end="", flush=True)
 
                 buffer.append(token)
@@ -111,12 +110,12 @@ async def consumer(text_queue: asyncio.Queue, tts_model: TTS):
                 text_buffer = text_queue.get_nowait()
 
                 if tts_model and not shutdown_event.is_set():
-                    synthesis = tts_model.synthesise(text_buffer)
+                    synthesis = tts_model.forward(text_buffer)
 
                     while pygame.mixer.music.get_busy():
                         await asyncio.sleep(0.1)
 
-                    tts_model.tts.synthesizer.save_wav(wav=synthesis, path=tts_model.file_path)
+                    tts_model.model.synthesizer.save_wav(wav=synthesis, path=tts_model.file_path)
 
                     audio_io.play_wav(tts_model.file_path)
 
@@ -169,11 +168,8 @@ async def _real_main(**kwargs):
 
     llm_model = LLM(**llm_config)
 
-    try:
-        # Assert ollama model validity
-        _ = llm_model.get_info()
-    except ollama.ResponseError as exc:
-        print_system_message(str(exc), color=Fore.RED)
+    if not llm_model.exists():
+        print_system_message(f"Invalid ollama model: {llm_model.model_id}", color=Fore.RED)
         return 2
 
     print_system_message(

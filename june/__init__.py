@@ -1,6 +1,6 @@
 from .utils import suppress_stdout_stderr
 
-# suppress pygame's support prompt without the need to PYGAME_HIDE_SUPPORT_PROMPT to be set
+# Suppress pygame's support prompt without the need to set PYGAME_HIDE_SUPPORT_PROMPT environment variable
 with suppress_stdout_stderr():
     import pygame
 
