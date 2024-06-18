@@ -20,7 +20,8 @@ from colorama import Fore, Style, init
 
 from .audio import AudioIO
 from .models import LLM, STT, TTS
-from .utils import ThreadSafeState, print_system_message
+from .settings import default_config
+from .utils import ThreadSafeState, deep_merge_dicts, print_system_message
 
 logging.getLogger("TTS").setLevel(logging.ERROR)
 pygame.mixer.init()
@@ -56,7 +57,9 @@ async def _real_main(**kwargs):
     Args:
         **kwargs: Arbitrary keyword arguments including config file.
     """
-    config = json.loads(kwargs["config"].read())
+    user_config = json.loads(kwargs["config"].read()) if kwargs["config"] else {}
+    config = deep_merge_dicts(default_config, user_config)
+
     llm_config = config["llm"]
     stt_config = config.get("stt") or {}
     tts_config = config.get("tts") or {}
@@ -176,6 +179,7 @@ async def start_async_tasks(text_queue: asyncio.Queue[str], tts_model: Optional[
     "--config",
     help="Configuration file.",
     nargs=1,
+    required=False,
     type=click.File("r", encoding="utf-8"),
 )
 def main(**kwargs):

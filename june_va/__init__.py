@@ -5,3 +5,6 @@ with suppress_stdout_stderr():
     import pygame
 
     _ = pygame
+
+
+__version__ = "0.0.1"

@@ -1,3 +1,47 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "june-va"
+authors = [
+    {name = "Mezbaul Haque"},
+]
+description = "A template to kickstart Python-based projects."
+keywords = ["python", "linting", "formatting", "ci-cd", "template-project"]
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "click==8.1.7",
+  "colorama==0.4.6",
+  "coqui-tts==0.24.1",
+  "numpy==1.26.4",
+  "ollama==0.2.1",
+  "PyAudio==0.2.14",
+  "pydantic-settings==2.3.1",
+  "pygame==2.5.2",
+  "transformers==4.40.2",
+]
+dynamic = ["version"]
+
+[project.scripts]
+june-va = "june_va.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/mezbaul-h/hypy"
+Repository = "https://github.com/mezbaul-h/hypy.git"
+Issues = "https://github.com/mezbaul-h/hypy/issues"
+
 [tool.bandit]
 exclude_dirs = ["venv"]
 skips = ["B101"]
@@ -12,31 +56,6 @@ color = true
 line-length = 119
 #target-version = ["py312"]
 
-[tool.isort]
-color_output = true
-#extend_skip = ["directory"]
-line_length = 119
-multi_line_output = 3
-profile = "black"
-py_version = "auto"
-
-[tool.mypy]
-#exclude = ["directory"]
-ignore_missing_imports = true
-
-[tool.pytest.ini_options]
-addopts = "-ra --verbose"
-testpaths = ["test"]
-
-[tool.coverage.run]
-branch = true
-omit = [
-  "*/tests/*",
-  "locustfile.py",
-  "manage.py",
-]
-#source = ["package_name"]
-
 [tool.coverage.report]
 show_missing = true
 exclude_lines = [
@@ -49,3 +68,34 @@ exclude_lines = [
   "if 0:",
   "if __name__ == .__main__.:",
 ]
+
+[tool.coverage.run]
+branch = true
+omit = [
+  "*/test/*",
+  "locustfile.py",
+  "manage.py",
+]
+#source = ["package_name"]
+
+[tool.isort]
+color_output = true
+#extend_skip = ["directory"]
+line_length = 119
+multi_line_output = 3
+profile = "black"
+py_version = "auto"
+
+[tool.mypy]
+exclude = ["test"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "-ra --verbose"
+testpaths = ["test"]
+
+[tool.setuptools.dynamic]
+version = {attr = "june_va.__version__"}
+
+[tool.setuptools.packages]
+find = {}

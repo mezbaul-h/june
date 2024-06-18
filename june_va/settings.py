@@ -29,3 +29,14 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+default_config = {
+    "llm": {"device": settings.TORCH_DEVICE, "disable_chat_history": False, "model": "llama3:8b-instruct-q4_0"},
+    "stt": {
+        "device": settings.TORCH_DEVICE,
+        "generation_args": {"batch_size": 8},
+        "model": "openai/whisper-medium.en",
+    },
+    "tts": {"device": settings.TORCH_DEVICE, "model": "tts_models/en/ljspeech/glow-tts"},
+}
