@@ -20,7 +20,6 @@
 ### Pre-requisites
 - [Ollama](https://github.com/ollama/ollama)
 - Python `3.10+` (with _pip_)
-- [PyTorch](https://pytorch.org/get-started/locally/) (with _TorchAudio_)
 
 You will also need the following native package installed on your machine:
 
