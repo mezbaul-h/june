@@ -1,14 +1,33 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=69.1.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "june-va"
 authors = [
-    {name = "Mezbaul Haque"},
+  {name = "Mezbaul Haque"},
 ]
-description = "A template to kickstart Python-based projects."
-keywords = ["python", "linting", "formatting", "ci-cd", "template-project"]
+description = "Local voice assistant combining the power of Ollama, Hugging Face Transformers, and the Coqui TTS Toolkit"
+keywords = [
+  "ai",
+  "ai assistant",
+  "chatbot",
+  "coqui tts",
+  "hugging face",
+  "local assistant",
+  "machine learning",
+  "natural language processing",
+  "nlp",
+  "ollama",
+  "python",
+  "speech recognition",
+  "speech synthesis",
+  "text-to-speech",
+  "voice assistant",
+  "voice commands",
+  "voice interaction",
+  "virtual assistant"
+]
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}
@@ -21,18 +40,7 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
-dependencies = [
-  "click==8.1.7",
-  "colorama==0.4.6",
-  "coqui-tts==0.24.1",
-  "numpy==1.26.4",
-  "ollama==0.2.1",
-  "PyAudio==0.2.14",
-  "pydantic-settings==2.3.1",
-  "pygame==2.5.2",
-  "transformers==4.40.2",
-]
-dynamic = ["version"]
+dynamic = ["dependencies", "version"]
 
 [project.scripts]
 june-va = "june_va.cli:main"
@@ -48,13 +56,7 @@ skips = ["B101"]
 
 [tool.black]
 color = true
-#extend-exclude = '''
-#/(
-#  | directory
-#)/
-#'''
 line-length = 119
-#target-version = ["py312"]
 
 [tool.coverage.report]
 show_missing = true
@@ -73,14 +75,12 @@ exclude_lines = [
 branch = true
 omit = [
   "*/test/*",
-  "locustfile.py",
-  "manage.py",
+  "settings.py",
 ]
-#source = ["package_name"]
+source = ["june_va"]
 
 [tool.isort]
 color_output = true
-#extend_skip = ["directory"]
 line_length = 119
 multi_line_output = 3
 profile = "black"
@@ -95,6 +95,7 @@ addopts = "-ra --verbose"
 testpaths = ["test"]
 
 [tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 version = {attr = "june_va.__version__"}
 
 [tool.setuptools.packages]

@@ -2,6 +2,7 @@
 
 ## Local Voice Assistant: Ollama + HF Transformers + Coqui TTS Toolkit
 
+
 ## OVERVIEW
 
 **june-va** is a local voice assistant that combines the power of Ollama (for language model capabilities), Hugging Face Transformers (for speech recognition), and the Coqui TTS Toolkit (for text-to-speech synthesis). It provides a flexible, privacy-focused solution for voice-assisted interactions on your local machine, ensuring that no data is sent to external servers.
@@ -13,9 +14,10 @@
 - **Text Input/Audio Output:** Provide text inputs and receive both text and synthesised audio responses from the assistant.
 - **Voice Input/Audio Output (Default):** Use your microphone for voice inputs, and receive responses in both text and synthesised audio form.
 
+
 ## INSTALLATION
 
-### Pre-requisites:
+### Pre-requisites
 - [Ollama](https://github.com/ollama/ollama)
 - Python `3.10+` (with _pip_)
 - [PyTorch](https://pytorch.org/get-started/locally/) (with _TorchAudio_)
@@ -24,12 +26,6 @@ You will also need the following native package installed on your machine:
 
 ```shell
 apt install portaudio19-dev  # requirement for PyAudio
-```
-
-### From PyPI
-
-```shell
-pip install june-va
 ```
 
 ### From Source
@@ -41,7 +37,7 @@ git clone https://github.com/mezbaul-h/june.git
 cd june
 ```
 
-Install project and it's dependencies:
+Install the program and it's dependencies:
 
 ```shell
 pip install .
