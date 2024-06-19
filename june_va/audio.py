@@ -25,7 +25,7 @@ class AudioIO:
     Attributes:
         RATE: The sample rate for audio recording and playback (default: 24000).
         CHUNK: The buffer size for audio recording (default: 2048).
-        THRESHOLD: The threshold for detecting silence in audio data (default: 1000).
+        THRESHOLD: The threshold for detecting silence in audio data (default: 800).
         SILENCE_LIMIT: The number of seconds of silence before stopping recording (default: 3).
         pa: An instance of the PyAudio object.
         input_stream: The input audio stream for recording.
@@ -33,8 +33,8 @@ class AudioIO:
 
     RATE = 24000
     CHUNK = 2048
-    THRESHOLD = 1000
-    SILENCE_LIMIT = 2
+    THRESHOLD = 800
+    SILENCE_LIMIT = 3
 
     def __enter__(self) -> "AudioIO":
         """
