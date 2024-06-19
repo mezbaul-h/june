@@ -56,6 +56,10 @@ june-va --config path/to/config.json  # With custom configuration
 
 **NOTE:** The configuration file is optional. To learn more about the structure of the config file, see the [Configuration](#configuration) section.
 
+### ℹ️ Regarding Voice Input
+
+After seeing the `Listening for sound...` message, you can speak directly into the microphone. Unlike typical voice assistants, there's no wake command required. Simply start speaking, and the tool will automatically detect and process your voice input. Once you finish speaking, maintain silence for 3 seconds to allow the assistant to process your voice input.
+
 ### Demo (Text-Only Interaction)
 
 ![demo-text-only-interaction](demo.gif)
