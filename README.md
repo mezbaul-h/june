@@ -56,6 +56,10 @@ june-va --config path/to/config.json  # With custom configuration
 
 **NOTE:** The configuration file is optional. To learn more about the structure of the config file, see the [Configuration](#configuration) section.
 
+### Demo (Text-Only Interaction)
+
+![demo-text-only-interaction](demo.gif)
+
 ## CONFIGURATION
 
 The application can be customised using a configuration file. The config file must be a JSON file. The default configuration is as follows:
