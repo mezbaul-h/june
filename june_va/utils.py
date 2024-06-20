@@ -2,12 +2,20 @@
 This module provides utility classes and functions.
 """
 
+import logging
 import os
 import sys
 import threading
 from typing import Any
 
 from colorama import Fore, Style
+
+logger = logging.getLogger(__name__)
+_handler = logging.StreamHandler()
+_formatter = logging.Formatter("%(message)s")
+_handler.setFormatter(_formatter)
+logger.addHandler(_handler)
+logger.setLevel(logging.DEBUG)
 
 
 class ThreadSafeState:
@@ -135,7 +143,7 @@ def deep_merge_dicts(old: dict, new: dict) -> dict:
     return merged
 
 
-def print_system_message(message: str, color: str = Fore.BLUE) -> None:
+def print_system_message(message: str, color: str = Fore.BLUE, log_level: int = logging.DEBUG) -> None:
     """
     Print a message with a colored system prompt.
 
@@ -143,5 +151,7 @@ def print_system_message(message: str, color: str = Fore.BLUE) -> None:
         message: The message to be printed.
         color: The color code for the message text (e.g., Fore.BLUE).
             Defaults to Fore.BLUE.
+        log_level: The logging level for the message (e.g., logging.DEBUG).
+            Defaults to logging.DEBUG.
     """
-    print(f"{Style.BRIGHT}{Fore.YELLOW}[system]> {Style.NORMAL}{color}{message}{Style.RESET_ALL}")
+    logger.log(log_level, f"{Style.BRIGHT}{Fore.YELLOW}[system]> {Style.NORMAL}{color}{message}{Style.RESET_ALL}")

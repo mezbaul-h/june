@@ -4,7 +4,7 @@ This module provides a class for interacting with a Language Model (LLM) using t
 
 from typing import Dict, Iterator, List, Optional
 
-import ollama
+from ollama import Client, ResponseError
 
 from .common import BaseModel
 
@@ -40,7 +40,7 @@ class LLM(BaseModel):
 
         self.is_chat_history_disabled: Optional[bool] = kwargs.get("disable_chat_history")
 
-        self.model = ollama.Client()
+        self.model = Client()
 
     def exists(self) -> bool:
         """
@@ -51,10 +51,10 @@ class LLM(BaseModel):
         """
         try:
             # Assert ollama model validity
-            _ = ollama.show(self.model_id)
+            _ = self.model.show(self.model_id)
 
             return True
-        except ollama.ResponseError:
+        except ResponseError:
             return False
 
     def forward(self, message: str) -> Iterator[str]:

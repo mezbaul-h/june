@@ -6,22 +6,23 @@ third-party libraries for audio processing and command-line interaction.
 """
 
 import asyncio
-import json
 import logging
 import os.path
 import re
 import time
+from json import loads
 from threading import Thread
 from typing import Optional
 
 import click
-import pygame
+import pygame.mixer
 from colorama import Fore, Style, init
 
+from . import __version__
 from .audio import AudioIO
 from .models import LLM, STT, TTS
 from .settings import default_config
-from .utils import ThreadSafeState, deep_merge_dicts, print_system_message
+from .utils import ThreadSafeState, deep_merge_dicts, logger, print_system_message
 
 logging.getLogger("TTS").setLevel(logging.ERROR)
 pygame.mixer.init()
@@ -57,7 +58,7 @@ async def _real_main(**kwargs):
     Args:
         **kwargs: Arbitrary keyword arguments including config file.
     """
-    user_config = json.loads(kwargs["config"].read()) if kwargs["config"] else {}
+    user_config = loads(kwargs["config"].read()) if kwargs["config"] else {}
     config = deep_merge_dicts(default_config, user_config)
 
     llm_config = config["llm"]
@@ -74,19 +75,15 @@ async def _real_main(**kwargs):
                     "work."
                 ),
                 color=Fore.RED,
+                log_level=logging.ERROR,
             )
             return 1
 
     llm_model = LLM(**llm_config)
 
     if not llm_model.exists():
-        print_system_message(f"Invalid ollama model: {llm_model.model_id}", color=Fore.RED)
+        print_system_message(f"Invalid ollama model: {llm_model.model_id}", color=Fore.RED, log_level=logging.ERROR)
         return 2
-
-    print_system_message(
-        f"Models being used: LLM={llm_config['model']}, STT={stt_config.get('model') or 'n/a'}, "
-        f"TTS={tts_config.get('model') or 'n/a'}"
-    )
 
     if llm_config.get("disable_chat_history"):
         print_system_message(
@@ -182,13 +179,20 @@ async def start_async_tasks(text_queue: asyncio.Queue[str], tts_model: Optional[
     required=False,
     type=click.File("r", encoding="utf-8"),
 )
+@click.option(
+    "-v",
+    "--verbose",
+    help="Verbose mode.",
+    is_flag=True,
+)
+@click.version_option(__version__)
 def main(**kwargs):
     """
-    Main function to run the CLI program.
-
-    Args:
-        **kwargs: Arbitrary keyword arguments including config file.
+    Local voice assistant tool.
     """
+    if not kwargs["verbose"]:
+        logger.setLevel(logging.INFO)
+
     asyncio.run(_real_main(**kwargs))
 
 

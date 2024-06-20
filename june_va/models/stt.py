@@ -5,8 +5,7 @@ This module provides a Speech-to-Text (STT) class for transcribing audio data in
 import warnings
 from typing import Dict, Union
 
-import numpy as np
-from transformers import pipeline
+from numpy import ndarray
 
 from ..settings import settings
 from .common import BaseModel
@@ -34,6 +33,8 @@ class STT(BaseModel):
             # Ignore the `resume_download` warning raise by Hugging Face's underlying library
             warnings.simplefilter("ignore", lineno=1132)
 
+            from transformers import pipeline
+
             self.model = pipeline(
                 "automatic-speech-recognition",
                 chunk_length_s=10,
@@ -44,7 +45,7 @@ class STT(BaseModel):
                 trust_remote_code=True,
             )
 
-    def forward(self, audio: Dict[str, Union[int, np.ndarray]]) -> str:
+    def forward(self, audio: Dict[str, Union[int, ndarray]]) -> str:
         """
         Transcribe audio data into text using the Speech-to-Text model.
 

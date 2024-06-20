@@ -2,8 +2,8 @@
 This module defines the application settings using the Pydantic library.
 """
 
-import torch
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from torch import cuda
 
 
 class Settings(BaseSettings):
@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     )
 
     HF_TOKEN: str = ""
-    TORCH_DEVICE: str = "cuda" if torch.cuda.is_available() else "cpu"
+    TORCH_DEVICE: str = "cuda" if cuda.is_available() else "cpu"
 
 
 settings = Settings()
@@ -36,7 +36,7 @@ default_config = {
     "stt": {
         "device": settings.TORCH_DEVICE,
         "generation_args": {"batch_size": 8},
-        "model": "openai/whisper-medium.en",
+        "model": "openai/whisper-small.en",
     },
     "tts": {"device": settings.TORCH_DEVICE, "model": "tts_models/en/ljspeech/glow-tts"},
 }

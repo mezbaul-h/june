@@ -29,34 +29,40 @@ apt install portaudio19-dev  # requirement for PyAudio
 
 ### From Source
 
-Clone the project and go into the directory:
+To install directly from source:
 
 ```shell
 git clone https://github.com/mezbaul-h/june.git
 cd june
-```
-
-Install the program and it's dependencies:
-
-```shell
 pip install .
 ```
-
-You are now ready to use the program!
 
 
 ## USAGE
 
-You can execute it by running the following command:
+Pull the language model (default is `llama3:8b-instruct-q4_0`) with Ollama first, if you haven't already:
 
 ```shell
-june-va  # With default configuration
-june-va --config path/to/config.json  # With custom configuration
+ollama pull llama3:8b-instruct-q4_0
 ```
 
-**NOTE:** The configuration file is optional. To learn more about the structure of the config file, see the [Configuration](#configuration) section.
+Next, run the program (with default configuration):
 
-### ℹ️ Regarding Voice Input
+```shell
+june-va
+```
+
+This will use [llama3:8b-instruct-q4_0](https://ollama.com/library/llama3:8b-instruct-q4_0) for LLM capabilities, [openai/whisper-small.en](https://huggingface.co/openai/whisper-small.en) for speech recognition, and `tts_models/en/ljspeech/glow-tts` for audio synthesis.
+
+You can also customize behaviour of the program with a json configuration file:
+
+```shell
+june-va --config path/to/config.json
+```
+
+⚠️ The configuration file is optional. To learn more about the structure of the config file, see the [Configuration](#configuration) section.
+
+### ⚠️ Regarding Voice Input
 
 After seeing the `Listening for sound...` message, you can speak directly into the microphone. Unlike typical voice assistants, there's no wake command required. Simply start speaking, and the tool will automatically detect and process your voice input. Once you finish speaking, maintain silence for 3 seconds to allow the assistant to process your voice input.
 

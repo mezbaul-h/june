@@ -2,15 +2,11 @@
 This module provides classes and functions for recording and playing audio.
 """
 
+import logging
 from typing import Dict, List, Optional, Union
 
 import numpy as np
 import pygame.mixer
-
-try:
-    import pyaudio
-except ImportError:
-    pyaudio = None
 
 from .utils import print_system_message, suppress_stdout_stderr
 
@@ -60,6 +56,8 @@ class AudioIO:
         """
         Initialize the input audio stream using PyAudio.
         """
+        import pyaudio
+
         with suppress_stdout_stderr():
             self.pa = pyaudio.PyAudio()
 
@@ -120,13 +118,13 @@ class AudioIO:
         recording = False
 
         self.input_stream.start_stream()
-        print_system_message("Listening for sound...")
+        print_system_message("Listening for sound...", log_level=logging.INFO)
 
         while True:
             data: np.ndarray = np.frombuffer(self.input_stream.read(self.CHUNK), dtype=np.int16)
 
             if not recording and not self.is_silent(data):
-                print_system_message("Sound detected, starting recording...")
+                print_system_message("Sound detected, starting recording...", log_level=logging.INFO)
                 recording = True
 
             if recording:
@@ -137,7 +135,7 @@ class AudioIO:
                     current_silence = 0
 
                 if current_silence > (self.SILENCE_LIMIT * self.RATE / self.CHUNK):
-                    print_system_message("Silence detected, stopping recording...")
+                    print_system_message("Silence detected, stopping recording...", log_level=logging.INFO)
                     break
 
         self.input_stream.stop_stream()

@@ -3,13 +3,36 @@ This module defines a base class for models used in various tasks such as Text-t
 Models.
 """
 
-import abc
+from abc import ABC, ABCMeta, abstractmethod
 from typing import Any, Dict
 
 from ..settings import settings
+from ..utils import print_system_message
 
 
-class BaseModel(abc.ABC):
+class BaseMeta(ABCMeta):
+    """
+    Metaclass for BaseModel that adds automatic initialization logging.
+
+    This metaclass overrides the __call__ method to print a system message
+    when a new instance of a model is created. It logs the model's class name,
+    model ID, and the device it's initialized on.
+    """
+
+    def __call__(cls, *args, **kwargs):
+        # Create the instance using the standard creation process
+        instance = super().__call__(*args, **kwargs)
+
+        # Print a system message with information about the initialized model
+        print_system_message(
+            f"{instance.__class__.__name__} model initialized (model_id={instance.model_id}; device={instance.device})",
+        )
+
+        # Return the created instance
+        return instance
+
+
+class BaseModel(ABC, metaclass=BaseMeta):
     """
     Base class for models used in various tasks.
 
@@ -31,7 +54,7 @@ class BaseModel(abc.ABC):
         self.generation_args: Dict[str, Any] = kwargs.get("generation_args") or {}
         self.model_id: str = kwargs["model"]
 
-    @abc.abstractmethod
+    @abstractmethod
     def forward(self, model_input: Any) -> Any:
         """
         Abstract method to be implemented by subclasses for running the model on input data.

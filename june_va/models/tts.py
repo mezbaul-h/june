@@ -4,8 +4,6 @@ This module provides a Text-to-Speech (TTS) class for generating speech from tex
 
 from typing import List
 
-from TTS.api import TTS as CoquiTTS
-
 from .common import BaseModel
 
 
@@ -27,6 +25,8 @@ class TTS(BaseModel):
 
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+
+        from TTS.api import TTS as CoquiTTS
 
         self.model = CoquiTTS(self.model_id).to(self.device)
         self.file_path: str = self.generation_args.get("file_path") or "out.wav"
