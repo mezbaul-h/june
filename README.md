@@ -7,6 +7,8 @@
 
 **june-va** is a local voice assistant that combines the power of Ollama (for language model capabilities), Hugging Face Transformers (for speech recognition), and the Coqui TTS Toolkit (for text-to-speech synthesis). It provides a flexible, privacy-focused solution for voice-assisted interactions on your local machine, ensuring that no data is sent to external servers.
 
+![demo-text-only-interaction](demo.gif)
+
 ### Interaction Modes
 
 - **Text Input/Output:** Provide text inputs to the assistant and receive text responses.
@@ -66,9 +68,22 @@ june-va --config path/to/config.json
 
 After seeing the `Listening for sound...` message, you can speak directly into the microphone. Unlike typical voice assistants, there's no wake command required. Simply start speaking, and the tool will automatically detect and process your voice input. Once you finish speaking, maintain silence for 3 seconds to allow the assistant to process your voice input.
 
-### Demo (Text-Only Interaction)
+### Voice Conversion
 
-![demo-text-only-interaction](demo.gif)
+Many of the models (e.g., `tts_models/multilingual/multi-dataset/xtts_v2`) supported by Coqui's TTS Toolkit support voice cloning. You can use your own speaker profile with a small audio clip (approximately 1 minute for most models). Once you have the clip, you can instruct the assistant to use it with a custom configuration like the following:
+
+```json
+{
+  "tts": {
+    "model": "tts_models/multilingual/multi-dataset/xtts_v2",
+    "generation_args": {
+      "language": "en",
+      "speaker_wav": "/path/to/your/target/voice.wav"
+    }
+  }
+}
+```
+
 
 ## CONFIGURATION
 
@@ -77,19 +92,18 @@ The application can be customised using a configuration file. The config file mu
 ```json
 {
     "llm": {
-        "device": "cpu/cuda; based on availability",
         "disable_chat_history": false,
         "model": "llama3:8b-instruct-q4_0"
     },
     "stt": {
-        "device": "cpu/cuda; based on availability",
+        "device": "torch device identifier (`cuda` if available; otherwise `cpu`",
         "generation_args": {
             "batch_size": 8
         },
-        "model": "openai/whisper-medium.en"
+        "model": "openai/whisper-small.en"
     },
     "tts": {
-        "device": "cpu/cuda; based on availability",
+        "device": "torch device identifier (`cuda` if available; otherwise `cpu`",
         "model": "tts_models/en/ljspeech/glow-tts"
     }
 }
