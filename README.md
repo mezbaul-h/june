@@ -1,11 +1,11 @@
 # june-va
 
-## Local Voice Assistant: Ollama + HF Transformers + Coqui TTS Toolkit
+## Local Voice Chatbot: Ollama + HF Transformers + Coqui TTS Toolkit
 
 
 ## OVERVIEW
 
-**june-va** is a local voice assistant that combines the power of Ollama (for language model capabilities), Hugging Face Transformers (for speech recognition), and the Coqui TTS Toolkit (for text-to-speech synthesis). It provides a flexible, privacy-focused solution for voice-assisted interactions on your local machine, ensuring that no data is sent to external servers.
+**june-va** is a local voice chatbot that combines the power of Ollama (for language model capabilities), Hugging Face Transformers (for speech recognition), and the Coqui TTS Toolkit (for text-to-speech synthesis). It provides a flexible, privacy-focused solution for voice-assisted interactions on your local machine, ensuring that no data is sent to external servers.
 
 ![demo-text-only-interaction](demo.gif)
 

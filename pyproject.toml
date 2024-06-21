@@ -7,7 +7,7 @@ name = "june-va"
 authors = [
   {name = "Mezbaul Haque"},
 ]
-description = "Local voice assistant combining the power of Ollama, Hugging Face Transformers, and the Coqui TTS Toolkit"
+description = "Local voice chatbot for engaging conversations, powered by Ollama, Hugging Face Transformers, and Coqui TTS Toolkit"
 keywords = [
   "ai",
   "ai assistant",
@@ -46,9 +46,9 @@ dynamic = ["dependencies", "version"]
 june-va = "june_va.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/mezbaul-h/hypy"
-Repository = "https://github.com/mezbaul-h/hypy.git"
-Issues = "https://github.com/mezbaul-h/hypy/issues"
+Homepage = "https://github.com/mezbaul-h/june"
+Repository = "https://github.com/mezbaul-h/june.git"
+Issues = "https://github.com/mezbaul-h/june/issues"
 
 [tool.bandit]
 exclude_dirs = ["venv"]
