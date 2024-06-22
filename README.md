@@ -1,11 +1,17 @@
-# june-va
+# june
 
 ## Local Voice Chatbot: Ollama + HF Transformers + Coqui TTS Toolkit
+
+- [OVERVIEW](#overview)
+- [INSTALLATION](#installation)
+- [USAGE](#usage)
+- [CUSTOMIZATION](#customization)
+- [FAQ](#frequently-asked-questions)
 
 
 ## OVERVIEW
 
-**june-va** is a local voice chatbot that combines the power of Ollama (for language model capabilities), Hugging Face Transformers (for speech recognition), and the Coqui TTS Toolkit (for text-to-speech synthesis). It provides a flexible, privacy-focused solution for voice-assisted interactions on your local machine, ensuring that no data is sent to external servers.
+[**june**](https://github.com/mezbaul-h/june) is a local voice chatbot that combines the power of Ollama (for language model capabilities), Hugging Face Transformers (for speech recognition), and the Coqui TTS Toolkit (for text-to-speech synthesis). It provides a flexible, privacy-focused solution for voice-assisted interactions on your local machine, ensuring that no data is sent to external servers.
 
 ![demo-text-only-interaction](demo.gif)
 
@@ -20,14 +26,10 @@
 ## INSTALLATION
 
 ### Pre-requisites
-- [Ollama](https://github.com/ollama/ollama)
-- Python `3.10+` (with _pip_)
-
-You will also need the following native package installed on your machine:
-
-```shell
-apt install portaudio19-dev  # requirement for PyAudio
-```
+- [**Ollama**](https://github.com/ollama/ollama)
+- [**Python**](https://www.python.org/downloads/) 3.10 or greater (with _pip_)
+- **PortAudio** and **Python** headers; `apt install portaudio19-dev python3-dev` (only for Debian based systems)
+- [**Microsoft Visual C++**](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 14.0 or greater (only for Windows)
 
 ### From Source
 
@@ -62,30 +64,11 @@ You can also customize behaviour of the program with a json configuration file:
 june-va --config path/to/config.json
 ```
 
-⚠️ The configuration file is optional. To learn more about the structure of the config file, see the [Configuration](#configuration) section.
-
-### ⚠️ Regarding Voice Input
-
-After seeing the `Listening for sound...` message, you can speak directly into the microphone. Unlike typical voice assistants, there's no wake command required. Simply start speaking, and the tool will automatically detect and process your voice input. Once you finish speaking, maintain silence for 3 seconds to allow the assistant to process your voice input.
-
-### Voice Conversion
-
-Many of the models (e.g., `tts_models/multilingual/multi-dataset/xtts_v2`) supported by Coqui's TTS Toolkit support voice cloning. You can use your own speaker profile with a small audio clip (approximately 1 minute for most models). Once you have the clip, you can instruct the assistant to use it with a custom configuration like the following:
-
-```json
-{
-  "tts": {
-    "model": "tts_models/multilingual/multi-dataset/xtts_v2",
-    "generation_args": {
-      "language": "en",
-      "speaker_wav": "/path/to/your/target/voice.wav"
-    }
-  }
-}
-```
+> [!NOTE]
+> The configuration file is optional. To learn more about the structure of the config file, see the [Customization](#customization) section.
 
 
-## CONFIGURATION
+## CUSTOMIZATION
 
 The application can be customised using a configuration file. The config file must be a JSON file. The default configuration is as follows:
 
@@ -149,3 +132,26 @@ If you only want to modify the device on which you want to load a particular typ
 - `tts.device`: Torch device identifier (e.g., `cpu`, `cuda`, `mps`) on which the pipeline will be allocated.
 - `tts.generation_args`: Object containing generation arguments accepted by Coqui's TTS API.
 - `tts.model`: Name of the text-to-speech model supported by the Coqui's TTS Toolkit. Ensure this is a valid model ID.
+
+
+## Frequently Asked Questions
+
+### Q: How does the voice input work?
+
+After seeing the `[system]> Listening for sound...` message, you can speak directly into the microphone. Unlike typical voice assistants, there's no wake command required. Simply start speaking, and the tool will automatically detect and process your voice input. Once you finish speaking, maintain silence for 3 seconds to allow the assistant to process your voice input.
+
+### Q: Can I clone a voice?
+
+Many of the models (e.g., `tts_models/multilingual/multi-dataset/xtts_v2`) supported by Coqui's TTS Toolkit support voice cloning. You can use your own speaker profile with a small audio clip (approximately 1 minute for most models). Once you have the clip, you can instruct the assistant to use it with a custom configuration like the following:
+
+```json
+{
+  "tts": {
+    "model": "tts_models/multilingual/multi-dataset/xtts_v2",
+    "generation_args": {
+      "language": "en",
+      "speaker_wav": "/path/to/your/target/voice.wav"
+    }
+  }
+}
+```
