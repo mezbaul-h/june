@@ -28,10 +28,10 @@
 ### Pre-requisites
 - [**Ollama**](https://github.com/ollama/ollama)
 - [**Python**](https://www.python.org/downloads/) 3.10 or greater (with _pip_)
-- **Python** development package (e.g. `apt install python3-dev` for Debian) (only for GNU/Linux)
-- **PortAudio** development package (e.g. `apt install portaudio19-dev` for Debian) (only for GNU/Linux)
-- **PortAudio** (e.g. `brew install portaudio` using Homebrew) (only for macOS)
-- [**Microsoft Visual C++**](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 14.0 or greater (only for Windows)
+- **Python** development package (e.g. `apt install python3-dev` for Debian) — **only for GNU/Linux**
+- **PortAudio** development package (e.g. `apt install portaudio19-dev` for Debian) — **only for GNU/Linux**
+- **PortAudio** (e.g. `brew install portaudio` using Homebrew) — **only for macOS**
+- [**Microsoft Visual C++**](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 14.0 or greater — **only for Windows**
 
 ### From Source
 
@@ -166,4 +166,18 @@ Many of the models (e.g., `tts_models/multilingual/multi-dataset/xtts_v2`) suppo
     }
   }
 }
+```
+
+### Q: Can I use a remote Ollama instance with june?
+
+Yes, you can easily integrate a remotely hosted Ollama instance with june instead of using a local instance. Here's how to do it:
+1. Set the `OLLAMA_HOST` environment variable to the appropriate URL of your remote Ollama instance.
+2. Run the program as usual.
+
+#### Example:
+
+To use a remote Ollama instance, you would use a command like this:
+
+```shell
+OLLAMA_HOST=http://localhost:11434 june-va
 ```
