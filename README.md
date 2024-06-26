@@ -28,12 +28,24 @@
 ### Pre-requisites
 - [**Ollama**](https://github.com/ollama/ollama)
 - [**Python**](https://www.python.org/downloads/) 3.10 or greater (with _pip_)
-- **PortAudio** and **Python** headers; `apt install portaudio19-dev python3-dev` (only for Debian based systems)
+- **Python** development package (e.g. `apt install python3-dev` for Debian) (only for GNU/Linux)
+- **PortAudio** development package (e.g. `apt install portaudio19-dev` for Debian) (only for GNU/Linux)
+- **PortAudio** (e.g. `brew install portaudio` using Homebrew) (only for macOS)
 - [**Microsoft Visual C++**](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 14.0 or greater (only for Windows)
 
 ### From Source
 
-To install directly from source:
+#### Method 1: Direct Installation
+
+To install **june** directly from the GitHub repository:
+
+```shell
+pip install git+https://github.com/mezbaul-h/june.git@master
+```
+
+#### Method 2: Clone and Install
+
+Alternatively, you can clone the repository and install it locally:
 
 ```shell
 git clone https://github.com/mezbaul-h/june.git
