@@ -32,7 +32,7 @@ settings = Settings()
 
 
 default_config = {
-    "llm": {"disable_chat_history": False, "model": "llama3:8b-instruct-q4_0"},
+    "llm": {"disable_chat_history": False, "model": "llama3.1:8b-instruct-q4_0"},
     "stt": {
         "device": settings.TORCH_DEVICE,
         "generation_args": {"batch_size": 8},

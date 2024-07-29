@@ -56,10 +56,10 @@ pip install .
 
 ## USAGE
 
-Pull the language model (default is `llama3:8b-instruct-q4_0`) with Ollama first, if you haven't already:
+Pull the language model (default is `llama3.1:8b-instruct-q4_0`) with Ollama first, if you haven't already:
 
 ```shell
-ollama pull llama3:8b-instruct-q4_0
+ollama pull llama3.1:8b-instruct-q4_0
 ```
 
 Next, run the program (with default configuration):
@@ -68,7 +68,7 @@ Next, run the program (with default configuration):
 june-va
 ```
 
-This will use [llama3:8b-instruct-q4_0](https://ollama.com/library/llama3:8b-instruct-q4_0) for LLM capabilities, [openai/whisper-small.en](https://huggingface.co/openai/whisper-small.en) for speech recognition, and `tts_models/en/ljspeech/glow-tts` for audio synthesis.
+This will use [llama3.1:8b-instruct-q4_0](https://ollama.com/library/llama3.1:8b-instruct-q4_0) for LLM capabilities, [openai/whisper-small.en](https://huggingface.co/openai/whisper-small.en) for speech recognition, and `tts_models/en/ljspeech/glow-tts` for audio synthesis.
 
 You can also customize behaviour of the program with a json configuration file:
 
@@ -88,7 +88,7 @@ The application can be customised using a configuration file. The config file mu
 {
     "llm": {
         "disable_chat_history": false,
-        "model": "llama3:8b-instruct-q4_0"
+        "model": "llama3.1:8b-instruct-q4_0"
     },
     "stt": {
         "device": "torch device identifier (`cuda` if available; otherwise `cpu`",
