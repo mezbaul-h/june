@@ -113,14 +113,7 @@ async def _process_text(text: str, voice_output: bool):
                     for buffer in audio_buffer_generator(final_input):
                         yield buffer
         else:
-            yield (
-                json.dumps(
-                    {
-                        "text": chunk,
-                    }
-                )
-                + "\n"
-            )
+            yield json.dumps({"text": chunk}) + "\n"
 
     if tts_input_buffer:
         tts_input_queue.append(tts_input_buffer)
