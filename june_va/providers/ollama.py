@@ -6,14 +6,17 @@ import abc
 from typing import Dict, Iterator, List, Optional
 
 from ollama import Client, ResponseError
+from pydantic import BaseModel, ConfigDict
 
-from ..settings.models import OllamaLLMSettings
-from .common import BaseModel
+from .common import BaseLLMModel
 
 
-class BaseLLMModel(abc.ABC):
-    @abc.abstractmethod
-    def forward(self, text: str) -> Iterator[str]: ...
+class OllamaLLMSettings(BaseModel):
+    model_config = ConfigDict(protected_namespaces=())
+
+    disable_chat_history: bool = False
+    model: str
+    system_prompt: Optional[str] = None
 
 
 class OllamaLLM(BaseLLMModel):
@@ -24,27 +27,21 @@ class OllamaLLM(BaseLLMModel):
     and generating text from user input using the specified LLM.
 
     Args:
-        **kwargs: Keyword arguments for initializing the LLM, including optional arguments
-            like 'system_prompt' and 'disable_chat_history'.
+        user_settings: Keyword arguments for initializing the LLM, including optional arguments like 'system_prompt' and 'disable_chat_history'.
 
     Attributes:
-        messages: A list of dictionaries representing the conversation history,
-            with each dictionary containing a 'role' (e.g., 'system', 'user', 'assistant') and 'content' keys.
+        messages: A list of dictionaries representing the conversation history, with each dictionary containing a 'role' (e.g., 'system', 'user', 'assistant') and 'content' keys.
         system_prompt: An optional system prompt to provide context for the conversation.
         is_chat_history_disabled: A flag indicating whether the chat history should be disabled.
         model: An instance of the ollama.Client for interacting with the LLM.
     """
 
-    def __init__(self, **kwargs) -> None:
-        self.user_settings: OllamaLLMSettings = kwargs["user_settings"]
+    def __init__(self, user_settings: OllamaLLMSettings) -> None:
+        self.user_settings = user_settings
         self.messages: List[Dict[str, str]] = []
 
-        self.system_prompt: Optional[str] = kwargs.get("system_prompt")
-
-        if self.system_prompt:
-            self.messages.append({"role": "system", "content": self.system_prompt})
-
-        self.is_chat_history_disabled: Optional[bool] = kwargs.get("disable_chat_history")
+        if self.user_settings.system_prompt:
+            self.messages.append({"role": "system", "content": self.user_settings.system_prompt})
 
         self.model = Client()
 
@@ -96,7 +93,7 @@ class OllamaLLM(BaseLLMModel):
 
             yield token
 
-        if self.is_chat_history_disabled:
+        if self.user_settings.disable_chat_history:
             self.messages.pop()
         else:
             self.messages.append({"role": assistant_role, "content": generated_content})

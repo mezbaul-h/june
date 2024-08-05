@@ -6,7 +6,7 @@ import logging
 import os
 import sys
 import threading
-from typing import Any
+from typing import Any, Iterator
 
 from colorama import Fore, Style
 
@@ -16,6 +16,36 @@ _formatter = logging.Formatter("%(message)s")
 _handler.setFormatter(_formatter)
 logger.addHandler(_handler)
 logger.setLevel(logging.DEBUG)
+
+
+class TokenChunker:
+    MIN_CHUNK_SIZE = 10
+    SPLITTERS = [".", ",", "?", ":", ";"]
+
+    def __iter__(self):
+        for token in self.source:
+            self.buffer.append(token)
+
+            # Check if buffer is ready to be chunked
+            if token == "\n" or (len(self.buffer) >= self.MIN_CHUNK_SIZE and token in self.SPLITTERS):
+                chunk = "".join(self.buffer).strip()
+
+                self.buffer.clear()
+
+                if chunk:
+                    # Queue this chunk for TTS processing
+                    yield chunk
+
+        # Process any remaining text in buffer
+        if self.buffer:
+            chunk = "".join(self.buffer).strip()
+
+            if chunk:
+                yield chunk
+
+    def __init__(self, source: Iterator[str]) -> None:
+        self.buffer = []
+        self.source = source
 
 
 class ThreadSafeState:
