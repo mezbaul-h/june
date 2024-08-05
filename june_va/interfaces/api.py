@@ -1,16 +1,16 @@
 import io
 import json
-import struct
 import wave
+from typing import List
 
 import numpy as np
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 from pydub import AudioSegment
-from pydub.utils import make_chunks
 
+from june_va.providers.common import LLMMessage
 from june_va.utils import TokenChunker
 
 app = FastAPI()
@@ -45,23 +45,22 @@ def create_wav_header(params):
 
         header = wav_io.getvalue()
 
-        # Set the file size to the highest possible value (bytes 4 to 8)
+        # Set the file size to 0 (bytes 4 to 8)
         header = header[:4] + bytes(4) + header[8:]
 
-        # Set the data size to the highest possible value (bytes 40 to 44)
+        # Set the data size to 0 (bytes 40 to 44)
         header = header[:40] + bytes(4) + header[44:]
 
         return header
 
 
-async def _process_text(text: str, voice_output: bool):
+async def _process_text(messages: List[LLMMessage], voice_output: bool):
     llm_model = getattr(app, "llm_model")
     tts_model = getattr(app, "tts_model")
     tts_input_buffer = ""
     tts_input_queue = []
     audio_buffer = io.BytesIO()
     first_chunk = True
-    # params = None
 
     def audio_buffer_generator(_input):
         nonlocal first_chunk
@@ -91,9 +90,9 @@ async def _process_text(text: str, voice_output: bool):
         audio_buffer.seek(0)
         audio_buffer.truncate(0)
 
-    for chunk in TokenChunker(llm_model.forward(text)):
+    for chunk in TokenChunker(llm_model.forward(messages)):
         if voice_output:
-            tts_input_buffer += tts_model.normalize_text(chunk)
+            tts_input_buffer += tts_model.normalize_text(chunk.content)
 
             if len(tts_input_buffer) >= (TokenChunker.MIN_CHUNK_SIZE * 2):
                 tts_input_queue.append(tts_input_buffer)
@@ -113,7 +112,7 @@ async def _process_text(text: str, voice_output: bool):
                     for buffer in audio_buffer_generator(final_input):
                         yield buffer
         else:
-            yield json.dumps({"text": chunk}) + "\n"
+            yield json.dumps(chunk.model_dump(mode="json")) + "\n"
 
     if tts_input_buffer:
         tts_input_queue.append(tts_input_buffer)
@@ -165,20 +164,31 @@ async def process_input(
     request: Request,
     voice_output: bool = False,
 ):
-    content_type = request.headers.get("Content-Type", "")
+    body = await request.json()
 
-    if "application/json" in content_type:
-        body = JsonInput(**await request.json())
+    if not isinstance(body, list):
+        raise HTTPException(400)
 
-        text = body.text
-    else:
-        body = dict((await request.form()).items())
-
-        text = await _speech_to_text(body["file"])
+    messages = [LLMMessage(**item) for item in body]
 
     return StreamingResponse(
-        _process_text(text, voice_output),
+        _process_text(messages, voice_output),
         media_type="application/x-ndjson" if not voice_output else "audio/wav",
+    )
+
+
+@app.post("/api/stt")
+async def process_input(
+    request: Request,
+):
+    body = dict((await request.form()).items())
+
+    text = await _speech_to_text(body["file"])
+
+    return JSONResponse(
+        {
+            "text": text,
+        }
     )
 
 

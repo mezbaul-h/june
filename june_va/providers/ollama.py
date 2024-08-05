@@ -3,97 +3,39 @@ This module provides a class for interacting with a Language Model (LLM) using t
 """
 
 import abc
+import json
 from typing import Dict, Iterator, List, Optional
 
-from ollama import Client, ResponseError
+import requests
 from pydantic import BaseModel, ConfigDict
 
-from .common import BaseLLMModel
+from .common import BaseLLMModel, LLMMessage
 
 
 class OllamaLLMSettings(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
-    disable_chat_history: bool = False
     model: str
-    system_prompt: Optional[str] = None
+    server_url: Optional[str] = None
 
 
 class OllamaLLM(BaseLLMModel):
-    """
-    A class for interacting with a Language Model (LLM) using the ollama library.
-
-    This class inherits from the BaseModel class and provides methods for checking if a model exists,
-    and generating text from user input using the specified LLM.
-
-    Args:
-        user_settings: Keyword arguments for initializing the LLM, including optional arguments like 'system_prompt' and 'disable_chat_history'.
-
-    Attributes:
-        messages: A list of dictionaries representing the conversation history, with each dictionary containing a 'role' (e.g., 'system', 'user', 'assistant') and 'content' keys.
-        system_prompt: An optional system prompt to provide context for the conversation.
-        is_chat_history_disabled: A flag indicating whether the chat history should be disabled.
-        model: An instance of the ollama.Client for interacting with the LLM.
-    """
-
     def __init__(self, user_settings: OllamaLLMSettings) -> None:
         self.user_settings = user_settings
-        self.messages: List[Dict[str, str]] = []
+        self.chat_url = (user_settings.server_url or "http://localhost:11434").rstrip("/") + "/api/chat"
 
-        if self.user_settings.system_prompt:
-            self.messages.append({"role": "system", "content": self.user_settings.system_prompt})
-
-        self.model = Client()
-
-    #
-    # def exists(self) -> bool:
-    #     """
-    #     Check if the specified LLM model exists.
-    #
-    #     Returns:
-    #         True if the model exists, False otherwise.
-    #     """
-    #     try:
-    #         # Assert ollama model validity
-    #         _ = self.model.show(self.model_id)
-    #
-    #         return True
-    #     except ResponseError:
-    #         return False
-
-    def forward(self, message: str) -> Iterator[str]:
-        """
-        Generate text from user input using the specified LLM.
-
-        Args:
-            message: The user input message.
-
-        Returns:
-            An iterator that yields the generated text in chunks.
-        """
-        self.messages.append({"role": "user", "content": message})
-
-        assistant_role = None
-        generated_content = ""
-
-        stream = self.model.chat(
-            model=self.user_settings.model,
-            messages=self.messages,
+    def forward(self, messages: List[LLMMessage]) -> Iterator[LLMMessage]:
+        res = requests.post(
+            self.chat_url,
+            json={
+                "messages": [item.model_dump() for item in messages],
+                "model": self.user_settings.model,
+                "stream": True,
+            },
             stream=True,
         )
 
-        for chunk in stream:
-            # NOTE: `chunk["done"] == True` when ends
-            token = chunk["message"]["content"]
+        res.raise_for_status()
 
-            if assistant_role is None:
-                assistant_role = chunk["message"]["role"]
-
-            generated_content += token
-
-            yield token
-
-        if self.user_settings.disable_chat_history:
-            self.messages.pop()
-        else:
-            self.messages.append({"role": assistant_role, "content": generated_content})
+        for line in res.iter_lines():
+            yield LLMMessage(**json.loads(line)["message"])

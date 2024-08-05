@@ -6,9 +6,11 @@ import logging
 import os
 import sys
 import threading
-from typing import Any, Iterator
+from typing import Any, Iterator, List
 
 from colorama import Fore, Style
+
+from june_va.providers.common import LLMMessage
 
 logger = logging.getLogger(__name__)
 _handler = logging.StreamHandler()
@@ -22,29 +24,33 @@ class TokenChunker:
     MIN_CHUNK_SIZE = 10
     SPLITTERS = [".", ",", "?", ":", ";"]
 
+    def combine_buffer(self, clear: bool = False) -> LLMMessage:
+        combined_content = "".join([item.content for item in self.buffer])
+        role = self.buffer[0].role
+
+        if clear:
+            self.buffer.clear()
+
+        return LLMMessage(content=combined_content, role=role)
+
     def __iter__(self):
-        for token in self.source:
-            self.buffer.append(token)
+        for message in self.source:
+            token = message.content
 
-            # Check if buffer is ready to be chunked
-            if token == "\n" or (len(self.buffer) >= self.MIN_CHUNK_SIZE and token in self.SPLITTERS):
-                chunk = "".join(self.buffer).strip()
+            # Skip empty ("") tokens.
+            if token:
+                self.buffer.append(message)
 
-                self.buffer.clear()
-
-                if chunk:
-                    # Queue this chunk for TTS processing
-                    yield chunk
+                # Check if buffer is ready to be chunked
+                if token == "\n" or (len(self.buffer) >= self.MIN_CHUNK_SIZE and token in self.SPLITTERS):
+                    yield self.combine_buffer(clear=True)
 
         # Process any remaining text in buffer
         if self.buffer:
-            chunk = "".join(self.buffer).strip()
+            yield self.combine_buffer()
 
-            if chunk:
-                yield chunk
-
-    def __init__(self, source: Iterator[str]) -> None:
-        self.buffer = []
+    def __init__(self, source: Iterator[LLMMessage]) -> None:
+        self.buffer: List[LLMMessage] = []
         self.source = source
 
 

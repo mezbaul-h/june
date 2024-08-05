@@ -1,6 +1,8 @@
 import abc
 import re
-from typing import Iterator
+from typing import Iterator, Literal
+
+from pydantic import BaseModel
 
 
 class BaseLLMModel(abc.ABC):
@@ -23,3 +25,8 @@ class BaseTTSModel(abc.ABC):
         n2 = re.sub(r"\s+", " ", n1)
 
         return n2
+
+
+class LLMMessage(BaseModel):
+    content: str
+    role: Literal["assistant", "system", "user"]
