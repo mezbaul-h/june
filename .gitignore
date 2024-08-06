@@ -196,5 +196,7 @@ fabric.properties
 *.vsix
 
 
-# Project config
+# JuneVA specific
+/asset
+/config
 config*.json

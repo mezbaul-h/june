@@ -21,10 +21,10 @@ class BaseTTSModel(abc.ABC):
 
     @staticmethod
     def normalize_text(text: str) -> str:
-        n1 = re.sub(r'[^A-Za-z0-9-_?!.,;:\'"\s]', " ", text)
-        n2 = re.sub(r"\s+", " ", n1)
+        # n1 = re.sub(r'[^A-Za-z0-9-_?!.,;:\'"`\s@#$%^&=+]', " ", text)
+        # n2 = re.sub(r"\s+", " ", n1)
 
-        return n2
+        return text
 
 
 class LLMMessage(BaseModel):

@@ -1,13 +1,9 @@
 import io
-import struct
-import time
-from typing import List, Optional
+from typing import Optional
 
-import numpy as np
-import requests
-import scipy.io.wavfile as wav
 from pydantic import BaseModel, ConfigDict, Json
 
+from ..utils import logger, suppress_stdout_stderr
 from .common import BaseTTSModel
 
 
@@ -63,17 +59,13 @@ class CoquiTTS(BaseTTSModel):
         """
         generation_args = self.user_settings.generation_args or {}
 
-        # synthesis: List[int] = self.model.tts(text, **generation_args)
-
-        # self.model.synthesizer.save_wav(wav=synthesis, path=self.file_path)
-        #
-        # return self.file_path
-
-        # audio_array = np.array(synthesis, dtype=np.int16)
-
         # Create a byte stream
         byte_io = io.BytesIO()
 
-        self.model.tts_to_file(text, **generation_args, file_path=byte_io)
+        try:
+            self.model.tts_to_file(text, **generation_args, file_path=byte_io)
+        except RuntimeError as exc:
+            # logger.warning("Failed to synthesize input: %s (Reason: %s)", repr(text), str(exc))
+            ...
 
         return byte_io.getvalue()

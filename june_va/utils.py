@@ -21,7 +21,7 @@ logger.setLevel(logging.DEBUG)
 
 
 class TokenChunker:
-    MIN_CHUNK_SIZE = 10
+    MIN_CHUNK_SIZE = 15
     SPLITTERS = [".", ",", "?", ":", ";"]
 
     def combine_buffer(self, clear: bool = False) -> LLMMessage:
@@ -39,6 +39,9 @@ class TokenChunker:
 
             # Skip empty ("") tokens.
             if token:
+                if self.print_tokens:
+                    print(token, end="", flush=True)
+
                 self.buffer.append(message)
 
                 # Check if buffer is ready to be chunked
@@ -49,8 +52,9 @@ class TokenChunker:
         if self.buffer:
             yield self.combine_buffer()
 
-    def __init__(self, source: Iterator[LLMMessage]) -> None:
+    def __init__(self, source: Iterator[LLMMessage], print_tokens: bool = False) -> None:
         self.buffer: List[LLMMessage] = []
+        self.print_tokens = print_tokens
         self.source = source
 
 

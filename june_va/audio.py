@@ -2,6 +2,7 @@
 This module provides classes and functions for recording and playing audio.
 """
 
+import io
 import logging
 from typing import Dict, List, Optional, Union
 
@@ -50,24 +51,47 @@ class AudioIO:
 
     def __init__(self) -> None:
         self.pa = None
+        self.pa_module = None
         self.input_stream = None
+        self.output_stream = None
+
+    def _init_pa(self) -> None:
+        import pyaudio
+
+        with suppress_stdout_stderr():
+            self.pa_module = pyaudio
+            self.pa = self.pa_module.PyAudio()
+
+    def initialize_output_stream(self, sample_width, n_channels, frame_rate) -> None:
+        """
+        Initialize the output audio stream using PyAudio.
+        """
+        if not self.pa:
+            self._init_pa()
+
+        if not self.output_stream:
+            self.output_stream = self.pa.open(
+                format=self.pa.get_format_from_width(sample_width),
+                channels=n_channels,
+                rate=frame_rate,
+                output=True,
+            )
 
     def _initialize_input_stream(self) -> None:
         """
         Initialize the input audio stream using PyAudio.
         """
-        import pyaudio
+        if not self.pa:
+            self._init_pa()
 
-        with suppress_stdout_stderr():
-            self.pa = pyaudio.PyAudio()
-
-        self.input_stream = self.pa.open(
-            channels=1,
-            format=pyaudio.paInt16,
-            frames_per_buffer=self.CHUNK,
-            input=True,
-            rate=self.RATE,
-        )
+        if not self.input_stream:
+            self.input_stream = self.pa.open(
+                channels=1,
+                format=self.pa_module.paInt16,
+                frames_per_buffer=self.CHUNK,
+                input=True,
+                rate=self.RATE,
+            )
 
     def close(self) -> None:
         """
@@ -75,6 +99,9 @@ class AudioIO:
         """
         if self.input_stream:
             self.input_stream.close()
+
+        if self.output_stream:
+            self.output_stream.close()
 
         if self.pa:
             self.pa.terminate()
