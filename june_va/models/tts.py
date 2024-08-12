@@ -26,10 +26,14 @@ class TTS(BaseModel):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
+        # Disable additional splits, as they increase the likelihood of generation errors.
+        self.generation_args["split_sentences"] = False
+
+        self.file_path: str = self.generation_args.get("file_path") or "out.wav"
+
         from TTS.api import TTS as CoquiTTS
 
         self.model = CoquiTTS(self.model_id).to(self.device)
-        self.file_path: str = self.generation_args.get("file_path") or "out.wav"
 
     def forward(self, text: str) -> List[int]:
         """
@@ -41,8 +45,5 @@ class TTS(BaseModel):
         Returns:
             A list of integers representing the generated audio data.
         """
-
-        # Disable additional splits, as they increase the likelihood of generation errors.
-        self.generation_args["split_sentences"] = False
 
         return self.model.tts(text, **self.generation_args)
