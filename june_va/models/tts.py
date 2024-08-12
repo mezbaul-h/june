@@ -41,4 +41,8 @@ class TTS(BaseModel):
         Returns:
             A list of integers representing the generated audio data.
         """
+
+        # Disable additional splits, as they increase the likelihood of generation errors.
+        self.generation_args["split_sentences"] = False
+
         return self.model.tts(text, **self.generation_args)

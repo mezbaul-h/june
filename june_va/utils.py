@@ -15,7 +15,7 @@ _handler = logging.StreamHandler()
 _formatter = logging.Formatter("%(message)s")
 _handler.setFormatter(_formatter)
 logger.addHandler(_handler)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 class ThreadSafeState:

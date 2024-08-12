@@ -196,8 +196,8 @@ def main(**kwargs):
     """
     Local voice assistant tool.
     """
-    if not kwargs["verbose"]:
-        logger.setLevel(logging.INFO)
+    if kwargs["verbose"]:
+        logger.setLevel(logging.DEBUG)
 
     asyncio.run(_real_main(**kwargs))
 
