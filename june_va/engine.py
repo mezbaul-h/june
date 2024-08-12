@@ -15,7 +15,8 @@ class Engine:
         self.stt_model = stt_model
         self.tts_model = tts_model
 
-    def create_wav_header(self, params):
+    @staticmethod
+    def create_wav_header(params):
         with io.BytesIO() as wav_io:
             with wave.open(wav_io, "wb") as wav_file:
                 wav_file.setparams(params)
@@ -36,7 +37,7 @@ class Engine:
         audio_buffer = io.BytesIO()
         first_chunk = True
 
-        def audio_buffer_generator(_input):
+        def generate_audio_buffer(_input):
             nonlocal first_chunk
             wav_bytes = self.tts_model.forward(_input)
 
@@ -68,12 +69,13 @@ class Engine:
             audio_buffer.truncate(0)
 
         for chunk in TokenChunker(self.llm_model.forward(messages), print_tokens=cli):
-            if voice_output and chunk.content.strip():
-                if queue:
-                    queue.put_nowait(chunk.content)
-                else:
-                    for buffer in audio_buffer_generator(chunk.content):
-                        yield buffer
+            if voice_output:
+                if chunk.content.strip():
+                    if queue:
+                        queue.put_nowait(chunk.content)
+                    else:
+                        for buffer in generate_audio_buffer(chunk.content):
+                            yield buffer
             else:
                 yield json.dumps(chunk.model_dump(mode="json")) + "\n"
 

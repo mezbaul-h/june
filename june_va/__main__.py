@@ -2,7 +2,7 @@
 This module serves as the entry point for running the CLI program.
 """
 
-from .cli import command_group
+from .cli import main
 
 if __name__ == "__main__":
-    command_group()
+    main()

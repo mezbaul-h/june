@@ -10,6 +10,7 @@ from pydub import AudioSegment
 
 from june_va.engine import Engine
 from june_va.providers.common import LLMMessage
+from june_va.utils import logger
 
 app = FastAPI()
 engine: Optional[Engine] = None
@@ -76,9 +77,9 @@ async def process_input(
     )
 
 
-def main(llm_model, stt_model, tts_model):
+def main(llm_model, stt_model, tts_model, host: str, port: int) -> None:
     global engine
 
     engine = Engine(llm_model, stt_model, tts_model)
 
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+    uvicorn.run(app, host=host, port=port, log_level=logger.getEffectiveLevel())

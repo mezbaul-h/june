@@ -1,8 +1,9 @@
 import io
-from typing import Optional
+from typing import Optional, Any, Dict
 
 from pydantic import BaseModel, ConfigDict, Json
 
+from ..settings import TORCH_DEVICE
 from ..utils import logger, suppress_stdout_stderr
 from .common import BaseTTSModel
 
@@ -17,8 +18,8 @@ class CoquiTTSSettings(BaseModel):
 
     model_config = ConfigDict(protected_namespaces=())
 
-    device: Optional[str] = "cpu"
-    generation_args: Optional[Json] = None
+    device: Optional[str] = TORCH_DEVICE
+    generation_args: Optional[Dict[Any, Any]] = None
     model: str
 
 

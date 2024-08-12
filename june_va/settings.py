@@ -3,8 +3,12 @@ from importlib import import_module
 from typing import Any, Optional, Tuple
 
 from pydantic import BaseModel, ConfigDict
+from torch import cuda
 
 from . import providers
+
+
+TORCH_DEVICE: str = "cuda" if cuda.is_available() else "cpu"
 
 
 class _ModuleWrapper:
@@ -28,7 +32,7 @@ class LLMSettings(BaseModel):
         # protected_namespaces=(),
     )
 
-    provider: str
+    provider: str = "ollama"
 
 
 class STTSettings(BaseModel):
@@ -37,7 +41,7 @@ class STTSettings(BaseModel):
         # protected_namespaces=(),
     )
 
-    provider: str
+    provider: str = "huggingface"
 
 
 class TTSSettings(BaseModel):
@@ -46,11 +50,7 @@ class TTSSettings(BaseModel):
         # protected_namespaces=(),
     )
 
-    # provider: Literal[
-    #     "coqui",
-    #     "elevenlabs",
-    # ]
-    provider: str
+    provider: str = "coqui"
 
 
 class UserSettings(BaseModel):
@@ -59,13 +59,26 @@ class UserSettings(BaseModel):
     tts: Optional[TTSSettings] = None
 
 
-def process_user_settings(user_settings_dict: dict) -> Tuple[Any, Any, Any]:
+_default_user_settings = {
+    "llm": {
+        "model": "llama3.1:8b-instruct-q4_0",
+    },
+    "stt": {
+        "device": TORCH_DEVICE,
+        "generation_args": {"batch_size": 8},
+        "model": "openai/whisper-small.en",
+    },
+    "tts": {"device": TORCH_DEVICE, "model": "tts_models/en/ljspeech/glow-tts"},
+}
+
+
+def process_user_settings(user_settings_dict: Optional[dict] = None) -> Tuple[Any, Any, Any]:
     """
     parse user settings and load models
     """
     stt_model = None
     tts_model = None
-    user_settings = UserSettings(**user_settings_dict)
+    user_settings = UserSettings(**(user_settings_dict or _default_user_settings))
 
     extras = user_settings.llm.model_extra
     provider = provider_modules[user_settings.llm.provider]

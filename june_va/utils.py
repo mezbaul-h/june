@@ -161,28 +161,6 @@ class suppress_stdout_stderr:
         self.err_null_file.close()
 
 
-def deep_merge_dicts(old: dict, new: dict) -> dict:
-    """
-    Merge two dictionaries recursively.
-
-    Args:
-        old: The original dictionary.
-        new: The new dictionary to merge into the original.
-
-    Returns:
-        The merged dictionary.
-    """
-    merged = old.copy()  # Start with a shallow copy of the old dictionary
-
-    for key, value in new.items():
-        if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
-            merged[key] = deep_merge_dicts(merged[key], value)
-        else:
-            merged[key] = value
-
-    return merged
-
-
 def print_system_message(message: str, color: str = Fore.BLUE, log_level: int = logging.DEBUG) -> None:
     """
     Print a message with a colored system prompt.

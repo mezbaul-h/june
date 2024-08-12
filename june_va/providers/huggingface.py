@@ -9,13 +9,14 @@ from numpy import ndarray
 from pydantic import BaseModel, ConfigDict, Json
 
 from .common import BaseSTTModel
+from ..settings import TORCH_DEVICE
 
 
 class HuggingfaceSTTSettings(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     api_key: Optional[str] = None
-    device: str = "cpu"
+    device: str = TORCH_DEVICE
     generation_args: Optional[Dict[Any, Any]] = None
     model: str
 
@@ -59,7 +60,7 @@ class HuggingfaceSTT(BaseSTTModel):
 
         Args:
             audio: A dictionary containing the audio data,
-                with a 'sample_rate' key for the sample rate (int) and an 'array' key for the audio array (np.ndarray).
+                with a 'sampling_rate' key for the sample rate (int) and an 'raw' key for the audio array (np.ndarray).
 
         Returns:
             The transcribed text from the audio data.
