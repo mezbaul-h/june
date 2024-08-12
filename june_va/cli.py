@@ -36,6 +36,7 @@ class AppState:
 
 
 current_app_state = ThreadSafeState(AppState.READY_FOR_INPUT)
+tts_generation_error = ThreadSafeState(False)
 shutdown_event = asyncio.Event()
 
 
@@ -129,11 +130,16 @@ async def consumer(text_queue: asyncio.Queue[str], tts_model: Optional[TTS]):
     with AudioIO() as audio_io:
         while not shutdown_event.is_set():
             try:
+                synthesis = None
                 text_buffer = text_queue.get_nowait()
 
                 if tts_model:
-                    synthesis = tts_model.forward(text_buffer)
+                    try:
+                        synthesis = tts_model.forward(text_buffer)
+                    except:
+                        tts_generation_error.set_value(True)
 
+                if synthesis:
                     while pygame.mixer.music.get_busy():
                         await asyncio.sleep(0.25)
 
@@ -229,6 +235,14 @@ def producer(text_queue: asyncio.Queue[str], llm_model: LLM, stt_model: Optional
         if current_app_state.get_value() != AppState.READY_FOR_INPUT:
             time.sleep(0.25)
             continue
+
+        if tts_generation_error.get_value():
+            print_system_message(
+                "Some text-to-speech generation failed.",
+                color=Fore.YELLOW,
+                log_level=logging.WARNING,
+            )
+            tts_generation_error.set_value(False)
 
         buffer = []
         user_input = get_user_input()
