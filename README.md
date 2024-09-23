@@ -91,14 +91,14 @@ The application can be customised using a configuration file. The config file mu
         "model": "llama3.1:8b-instruct-q4_0"
     },
     "stt": {
-        "device": "torch device identifier (`cuda` if available; otherwise `cpu`",
+        "device": "torch device identifier (`cuda` if available; otherwise `cpu`)",
         "generation_args": {
             "batch_size": 8
         },
         "model": "openai/whisper-small.en"
     },
     "tts": {
-        "device": "torch device identifier (`cuda` if available; otherwise `cpu`",
+        "device": "torch device identifier (`cuda` if available; otherwise `cpu`)",
         "model": "tts_models/en/ljspeech/glow-tts"
     }
 }
