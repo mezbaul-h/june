@@ -20,7 +20,7 @@ from colorama import Fore, Style, init
 
 from . import __version__
 from .audio import AudioIO
-from .models import LLM, STT, TTS
+from .models import CloudLLM, LLM, STT, TTS
 from .settings import default_config
 from .utils import ThreadSafeState, deep_merge_dicts, logger, print_system_message
 
@@ -80,10 +80,19 @@ async def _real_main(**kwargs):
             )
             return 1
 
-    llm_model = LLM(**llm_config)
+    llm_model = CloudLLM(**llm_config) if llm_config.get("provider") == "minimax" else LLM(**llm_config)
 
     if not llm_model.exists():
-        print_system_message(f"Invalid ollama model: {llm_model.model_id}", color=Fore.RED, log_level=logging.ERROR)
+        if llm_config.get("provider") == "minimax":
+            print_system_message(
+                "MiniMax API key not found. Set MINIMAX_API_KEY environment variable or provide 'api_key' in config.",
+                color=Fore.RED,
+                log_level=logging.ERROR,
+            )
+        else:
+            print_system_message(
+                f"Invalid ollama model: {llm_model.model_id}", color=Fore.RED, log_level=logging.ERROR
+            )
         return 2
 
     if llm_config.get("disable_chat_history"):

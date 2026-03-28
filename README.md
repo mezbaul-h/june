@@ -128,6 +128,10 @@ If you only want to modify the device on which you want to load a particular typ
 
 #### `llm` - Language Model Configuration
 
+- `llm.provider`: LLM provider to use. Omit or leave unset for Ollama (default). Set to `"minimax"` to use the MiniMax cloud API via OpenAI-compatible endpoint.
+- `llm.api_key`: API key for the cloud provider. Can also be set via the `MINIMAX_API_KEY` or `OPENAI_API_KEY` environment variable. Only used when `provider` is set.
+- `llm.base_url`: Base URL of the cloud LLM API. Defaults to `https://api.minimax.io/v1`. Only used when `provider` is set.
+- `llm.temperature`: Sampling temperature for generation (clamped to (0, 1] for MiniMax). Defaults to `0.7`. Only used when `provider` is set.
 - `llm.device`: Torch device identifier (e.g., `cpu`, `cuda`, `mps`) on which the pipeline will be allocated.
 - `llm.disable_chat_history`: Boolean indicating whether to disable or enable chat history. Enabling chat history will make interactions more dynamic, as the model will have access to previous contexts, but it will consume more processing power. Disabling it will result in less interactive conversations but will use fewer processing resources.
 - `llm.model`: Name of the text-generation model tag on Ollama. Ensure this is a valid model tag that exists on your machine.
@@ -168,7 +172,52 @@ Many of the models (e.g., `tts_models/multilingual/multi-dataset/xtts_v2`) suppo
 }
 ```
 
-### Q: Can I use a remote Ollama instance with june?
+### Q: Can I use a cloud LLM provider like MiniMax instead of Ollama?
+
+Yes, june supports cloud LLM providers via the OpenAI-compatible API. [MiniMax](https://www.minimaxi.com) offers powerful models like `MiniMax-M2.7` with 204K context window. To use MiniMax as your LLM backend:
+
+1. Set the `MINIMAX_API_KEY` environment variable:
+
+```shell
+export MINIMAX_API_KEY=your_api_key_here
+```
+
+2. Create a configuration file (e.g., `config-minimax.json`):
+
+```json
+{
+    "llm": {
+        "provider": "minimax",
+        "model": "MiniMax-M2.7"
+    }
+}
+```
+
+3. Run june with the config:
+
+```shell
+june-va --config config-minimax.json
+```
+
+Available MiniMax models:
+- `MiniMax-M2.7` — Latest flagship model with 204K context
+- `MiniMax-M2.7-highspeed` — Optimized for speed with 204K context
+
+You can also use any other OpenAI-compatible provider by specifying `base_url` in the LLM config:
+
+```json
+{
+    "llm": {
+        "provider": "minimax",
+        "model": "your-model-id",
+        "base_url": "https://your-provider-api-url/v1",
+        "api_key": "your_api_key"
+    }
+}
+```
+
+> [!NOTE]
+> When using a cloud provider, Ollama is not required for LLM. You still need it if you want local LLM capabilities.
 
 Yes, you can easily integrate a remotely hosted Ollama instance with june instead of using a local instance. Here's how to do it:
 1. Set the `OLLAMA_HOST` environment variable to the appropriate URL of your remote Ollama instance.

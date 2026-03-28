@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     )
 
     HF_TOKEN: str = ""
+    MINIMAX_API_KEY: str = ""
     TORCH_DEVICE: str = "cuda" if cuda.is_available() else "cpu"
 
 
